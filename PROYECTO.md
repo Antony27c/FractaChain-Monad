@@ -90,12 +90,16 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
 
 **Frontend:** Next.js + wagmi + viem. Wallet embebida con Privy.
 
-**Direcciones de Kuru en testnet.** La documentación se contradice, **hay que verificar cuáles son las vigentes antes de integrar**:
+**Direcciones de Kuru en testnet.** La documentación de Kuru da dos juegos de direcciones. Verificado el 3 de octubre en Monad testnet:
 
 | Contrato | Página "Contract Addresses" | Quick Start del SDK |
 |---|---|---|
-| Router | `0x7EFbE105Ca7415dE98F96622173458ac1c054630` | `0x1f5A250c4A506DA4cE584173c6ed1890B1bf7187` |
-| MarginAccount | `0xd029C2D98ff85D8F64799017fE00a59B1159CE02` | `0xdDDaBd30785bA8b45e434a1f134BDf304d6125d9` |
+| Router | `0x7EFbE105Ca7415dE98F96622173458ac1c054630` (tiene código) | `0x1f5A250c4A506DA4cE584173c6ed1890B1bf7187` (**sin código**) |
+| MarginAccount | `0xd029C2D98ff85D8F64799017fE00a59B1159CE02` (tiene código) | `0xdDDaBd30785bA8b45e434a1f134BDf304d6125d9` (**sin código**) |
+
+**Se usan las de la página "Contract Addresses".** Las del Quick Start están desactualizadas. Además, el `marginAccountAddress()` del Router vigente devuelve el MarginAccount de esa misma columna.
+
+**Sobre `deployProxy`.** Una simulación (`eth_call`) desde una cuenta cualquiera, con parámetros de prueba, revirtió sin mensaje. Eso **no confirma ni descarta** que sea permisionless: puede ser por permisos o por parámetros inválidos. Sigue pendiente probarlo con parámetros reales y un token real.
 
 ## 7. Moneda de pago: USDC de testnet de Kuru
 
@@ -121,7 +125,7 @@ Implicancias:
 ## 9. Preguntas abiertas
 
 1. **¿Alcanza el USDC de testnet de Kuru?** Probar el swap MON a USDC y estimar cuánto se consigue.
-2. **Direcciones vigentes de Kuru** (ver sección 6).
+2. **¿`deployProxy` de Kuru es permisionless?** Probar con parámetros reales (ver sección 6). Las direcciones vigentes ya están verificadas.
 3. **Bases de los bounties de Kuru y Privy:** qué se exige para que cuenten. Probar el primer día que Privy funcione en Monad testnet.
 4. **Parámetros del lote de demo:** supply de shards, decimales, precio, soft cap y hard cap.
 5. **Roles del equipo.**
