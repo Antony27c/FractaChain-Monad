@@ -1,3 +1,7 @@
 .agents/
 .claude/
 skills-lock.json
+
+# variables de entorno locales (App ID de Privy, etc.)
+.env.local
+.env*.local
