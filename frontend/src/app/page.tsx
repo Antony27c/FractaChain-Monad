@@ -1,9 +1,3 @@
-import { LoginButton } from "@/components/LoginButton";
-
 export default function Home() {
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <LoginButton />
-    </main>
-  );
+  return <div className="mx-auto max-w-6xl px-6 py-10" />;
 }
