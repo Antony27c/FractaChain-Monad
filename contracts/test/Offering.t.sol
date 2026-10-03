@@ -80,6 +80,42 @@ contract OfferingTest is Test {
         new Offering(address(0), address(usdc), address(kyc), issuer, PRICE, SOFT_CAP, HARD_CAP, deadline);
     }
 
+    function test_RevertWhen_PriceAboveShardUnit() public {
+        vm.expectRevert(Offering.InvalidParams.selector);
+        new Offering(address(shard), address(usdc), address(kyc), issuer, 1e18 + 1, SOFT_CAP, HARD_CAP, deadline);
+    }
+
+    function test_SmallestContributionStillGetsShards() public {
+        _contribute(alice, 1);
+        assertGt(offering.shardsFor(1), 0);
+    }
+
+    function test_RevokedKycCanStillClaim() public {
+        _contribute(alice, 50_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(registryOwner);
+        kyc.setVerified(alice, false);
+
+        vm.prank(alice);
+        offering.claim();
+        assertEq(shard.balanceOf(alice), 500_000 ether);
+    }
+
+    function test_RevokedKycCanStillRefund() public {
+        _contribute(alice, 10_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(registryOwner);
+        kyc.setVerified(alice, false);
+
+        vm.prank(alice);
+        offering.refund();
+        assertEq(usdc.balanceOf(alice), 200_000e6);
+    }
+
     function test_Contribute() public {
         _contribute(alice, 1_000e6);
 
