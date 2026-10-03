@@ -99,7 +99,7 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
 
 **Se usan las de la página "Contract Addresses".** Las del Quick Start están desactualizadas. Además, el `marginAccountAddress()` del Router vigente devuelve el MarginAccount de esa misma columna.
 
-**Sobre `deployProxy`.** Una simulación (`eth_call`) desde una cuenta cualquiera, con parámetros de prueba, revirtió sin mensaje. Eso **no confirma ni descarta** que sea permisionless: puede ser por permisos o por parámetros inválidos. Sigue pendiente probarlo con parámetros reales y un token real.
+**Sobre `deployProxy`.** Verificado con un test sobre un fork de Monad testnet (`contracts/test/KuruFork.t.sol`): una cuenta cualquiera desplegó un mercado para un token propio de 18 decimales contra el USDC de Kuru (6 decimales). Con estas precisiones: `sizePrecision` 1e10, `pricePrecision` 1e9, `tickSize` 100, `minSize` 1e8, `maxSize` 1e16, comisiones 30/10 bps y spread 100. Es una simulación sobre un fork, no una transacción real. El token tiene que exponer `decimals()` y `symbol()`; Kuru los lee al crear el mercado.
 
 ## 7. Moneda de pago: USDC de testnet de Kuru
 
@@ -125,7 +125,7 @@ Implicancias:
 ## 9. Preguntas abiertas
 
 1. **¿Alcanza el USDC de testnet de Kuru?** Probar el swap MON a USDC y estimar cuánto se consigue.
-2. **¿`deployProxy` de Kuru es permisionless?** Probar con parámetros reales (ver sección 6). Las direcciones vigentes ya están verificadas.
+2. **Confirmar `deployProxy` con una transacción real** en testnet. El test sobre fork indica que es permisionless (ver sección 6). Las direcciones vigentes ya están verificadas.
 3. **Bases de los bounties de Kuru y Privy:** qué se exige para que cuenten. Probar el primer día que Privy funcione en Monad testnet.
 4. **Parámetros del lote de demo:** supply de shards, decimales, precio, soft cap y hard cap.
 5. **Roles del equipo.**
