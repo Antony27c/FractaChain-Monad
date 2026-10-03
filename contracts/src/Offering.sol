@@ -66,7 +66,10 @@ contract Offering {
         if (shard_ == address(0) || paymentToken_ == address(0) || kyc_ == address(0) || issuer_ == address(0)) {
             revert ZeroAddress();
         }
-        if (pricePerShard_ == 0 || softCap_ == 0 || softCap_ > hardCap_ || deadline_ <= block.timestamp) {
+        if (
+            pricePerShard_ == 0 || pricePerShard_ > SHARD_UNIT || softCap_ == 0 || softCap_ > hardCap_
+                || deadline_ <= block.timestamp
+        ) {
             revert InvalidParams();
         }
         shard = IERC20Like(shard_);
