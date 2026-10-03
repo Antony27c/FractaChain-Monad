@@ -36,6 +36,7 @@ contract Offering {
     event Contributed(address indexed investor, uint256 amount, uint256 totalRaised);
     event Finalized(Status status, uint256 totalRaised);
     event Claimed(address indexed investor, uint256 shards);
+    event Refunded(address indexed investor, uint256 amount);
 
     error ZeroAddress();
     error InvalidParams();
@@ -48,6 +49,8 @@ contract Offering {
     error CannotFinalizeYet();
     error NotSucceeded();
     error NothingToClaim();
+    error NotFailed();
+    error NothingToRefund();
     error TransferFailed();
 
     constructor(
@@ -121,6 +124,17 @@ contract Offering {
         _push(shard, msg.sender, shards);
 
         emit Claimed(msg.sender, shards);
+    }
+
+    function refund() external {
+        if (status != Status.Failed) revert NotFailed();
+        uint256 paid = contributions[msg.sender];
+        if (paid == 0) revert NothingToRefund();
+
+        contributions[msg.sender] = 0;
+        _push(paymentToken, msg.sender, paid);
+
+        emit Refunded(msg.sender, paid);
     }
 
     function shardsFor(uint256 paymentAmount) external view returns (uint256) {

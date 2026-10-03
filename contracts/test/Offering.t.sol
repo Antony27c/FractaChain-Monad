@@ -223,6 +223,72 @@ contract OfferingTest is Test {
         offering.claim();
     }
 
+    function test_Refund() public {
+        _contribute(alice, 10_000e6);
+        _contribute(bob, 5_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(alice);
+        offering.refund();
+        vm.prank(bob);
+        offering.refund();
+
+        assertEq(usdc.balanceOf(alice), 200_000e6);
+        assertEq(usdc.balanceOf(bob), 200_000e6);
+        assertEq(usdc.balanceOf(address(offering)), 0);
+        assertEq(offering.contributions(alice), 0);
+    }
+
+    function test_RevertWhen_RefundTwice() public {
+        _contribute(alice, 10_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.startPrank(alice);
+        offering.refund();
+        vm.expectRevert(Offering.NothingToRefund.selector);
+        offering.refund();
+        vm.stopPrank();
+    }
+
+    function test_RevertWhen_RefundWhileActive() public {
+        _contribute(alice, 10_000e6);
+        vm.prank(alice);
+        vm.expectRevert(Offering.NotFailed.selector);
+        offering.refund();
+    }
+
+    function test_RevertWhen_RefundAfterSuccess() public {
+        _contribute(alice, 50_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(alice);
+        vm.expectRevert(Offering.NotFailed.selector);
+        offering.refund();
+    }
+
+    function test_RevertWhen_ClaimAfterFailure() public {
+        _contribute(alice, 10_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(alice);
+        vm.expectRevert(Offering.NotSucceeded.selector);
+        offering.claim();
+    }
+
+    function test_RevertWhen_RefundWithoutContribution() public {
+        _contribute(alice, 10_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(stranger);
+        vm.expectRevert(Offering.NothingToRefund.selector);
+        offering.refund();
+    }
+
     function testFuzz_AllocationsNeverExceedSupply(uint256 a, uint256 b) public {
         a = bound(a, 1, 60_000e6);
         b = bound(b, 1, HARD_CAP - a);
