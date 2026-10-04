@@ -72,6 +72,15 @@ Si una transacción falla, el nombre del error indica por qué. Para mostrar men
 | `NothingToClaim` / `NothingToRefund` | No hay nada para esa dirección. |
 | `ZeroAmount` | Monto en cero. |
 | `IssuerNotVerified` | El emisor no está verificado (al crear un lote). |
+| `SupplyBelowHardCap` | El supply del lote no alcanza para vender el hard cap (al crear un lote). |
+| `TransferFailed` | Falló la transferencia del token de pago. |
+| `ReentrantCall` | No debería aparecer en uso normal: protección de reentrancia. |
+
+## Dev local (anvil)
+
+Con `DeployLocal.s.sol` corriendo en anvil (`http://127.0.0.1:8545`, chain 31337) hay un USDC mock con mint libre y un lote SOJA26 de ejemplo. El script escribe solo `frontend/.env.development.local` (`NEXT_PUBLIC_NETWORK`, `NEXT_PUBLIC_DEV_MODE`, `NEXT_PUBLIC_RPC_URL`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_USDC`), que es de donde el frontend toma las direcciones.
+
+Para abrir el mercado de Kuru cuando termina la licitación: `scripts/kuru/open-market.ts` con `--offering <addr>` (lee todo del contrato y exige `status = Succeeded`).
 
 ## Regenerar los ABIs
 Si cambian los contratos:

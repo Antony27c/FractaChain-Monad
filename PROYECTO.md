@@ -1,7 +1,7 @@
 # ShardChain: documentación del proyecto
 
-> Documento vivo para el equipo. Estado: **planificación**, todavía no hay código.
-> Última actualización: 3 de octubre de 2026.
+> Documento vivo para el equipo. Estado: **en build**, contratos con tests en verde y flujo completo probado en fork local.
+> Última actualización: 4 de octubre de 2026.
 
 ## 1. Qué es ShardChain
 
@@ -79,16 +79,17 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
                   Inversores compran y venden en el order book
 ```
 
-**Contratos propios (Solidity + Foundry, Monad testnet).** Escritos y con tests (`contracts/`, 57 tests pasando):
+**Contratos propios (Solidity + Foundry, Monad testnet).** Escritos y con tests (`contracts/`, 79 tests pasando: unitarios, fuzz e invariantes):
 - `KycRegistry.sol`: lista de direcciones verificadas. Un dueño las aprueba, y con la verificación abierta cualquiera puede usar `verifyMyself()` (botón "verificarme" de la demo).
 - `ShardToken.sol`: ERC-20 de 18 decimales con metadata del activo (tipo, unidad, cantidad, campaña) y supply fijo emitido una sola vez.
-- `Offering.sol`: licitación primaria a precio fijo con `contribute`, `finalize`, `claim` y `refund`. Si se llega al soft cap, el USDC va al emisor y cada inversor retira sus shards; si no, cada inversor recupera su USDC.
-- `IssuanceFactory.sol`: crea el token y su `Offering` en una transacción y registra cada lote. Solo emisores verificados.
-- Guía para el frontend: `contracts/CONTRATOS.md`. ABIs en `contracts/abi/`.
+- `Offering.sol`: licitación primaria a precio fijo con `contribute`, `finalize`, `claim` y `refund`. Si se llega al soft cap, el USDC va al emisor y cada inversor retira sus shards; si no, cada inversor recupera su USDC. Revisión propia hecha: guardia de reentrancia en las 4 funciones y tests con token malicioso.
+- `IssuanceFactory.sol`: crea el token y su `Offering` en una transacción y registra cada lote. Solo emisores verificados, y exige que el supply del lote alcance para vender el hard cap.
+- `script/DeployLocal.s.sol`: deploy de todo el stack en anvil con un USDC mock, para dev local y para el frontend (`frontend/.env.development.local`).
+- Guía para el frontend: `contracts/CONTRATOS.md`. ABIs en `contracts/abi/` (regenerados con la revisión).
 
 **Lote de ejemplo (script de deploy):** 1.000.000 shards de soja (100 tn, campaña 2025/26) a 0,10 USDC, soft cap 40.000 USDC, hard cap 100.000 USDC, 7 días.
 
-**Integración con Kuru (offchain, con el SDK):** `scripts/kuru/open-market.ts` calcula las precisiones, crea el mercado y siembra el vault. Probado sobre un fork local de la testnet con tokens de prueba: el mercado quedó con bid ≈ 0,099 y ask 0,100. Ver `scripts/kuru/README.md`.
+**Integración con Kuru (offchain, con el SDK):** `scripts/kuru/open-market.ts` calcula las precisiones, crea el mercado y siembra el vault. El modo `--offering <addr>` lee el token, la moneda y el precio del contrato y exige `status = Succeeded` (es el que invoca el botón "Abrir mercado"); `--json` deja stdout limpio para el frontend. Probado E2E sobre un fork local de la testnet: licitación completa (contribute → finalize → claim) y mercado creado con bid ≈ 0,099 y ask 0,100. Ver `scripts/kuru/README.md`.
 
 **Qué falta probar en la testnet real:** el deploy de los contratos, y el script de Kuru con shards reales y el USDC de Kuru. Todo lo anterior se probó en tests y en forks.
 
@@ -120,8 +121,8 @@ Implicancias:
 
 | Días | Objetivo |
 |---|---|
-| 1-2 (3-4 oct) | **Hecho el 3 de oct:** entorno Foundry, `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory` con tests, script de deploy, ABIs y guía para el frontend, y script de Kuru (probado en fork). **Pendiente:** confirmar `deployProxy` con una transacción real. |
-| 3-4 | Deploy en testnet con una wallet de prueba. Probar el script de Kuru con los shards reales. Revisión de los contratos. |
+| 1-2 (3-4 oct) | **Hecho:** entorno Foundry, `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory` con tests, scripts de deploy (testnet y `DeployLocal` para anvil), ABIs y guía para el frontend, script de Kuru (probado en fork, modo `--offering`), invariantes del `Offering` (128k llamadas sin violaciones) y revisión de seguridad propia con fixes. **Pendiente:** confirmar `deployProxy` con una transacción real. |
+| 3-4 | Deploy en testnet con una wallet de prueba. Probar el script de Kuru con los shards reales. Revisión de los contratos (propia ya hecha; falta externa). |
 | 5-7 | Frontend: licitación (contribuir, reembolsar) y vista del mercado. |
 | 8 | Wallet embebida, pulido y flujo completo de punta a punta. |
 | 9-10 | Video de demo, README, lectura final de las bases de Kuru y envío. |
