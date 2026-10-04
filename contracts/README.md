@@ -17,6 +17,17 @@ Para correr también el test contra Kuru en Monad testnet (fork):
 forge test --fork-url https://testnet-rpc.monad.xyz
 ```
 
+## Deploy local (anvil)
+
+`DeployLocal.s.sol` despliega un `TestToken` USDC mock (6 decimales, mint libre) con 1.000.000 USDC para el deployer, más `KycRegistry`, `IssuanceFactory` y el lote de soja de ejemplo. Usa la clave de anvil por defecto; `PRIVATE_KEY` la puede sobreescribir.
+
+```bash
+anvil --port 8545
+forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
+```
+
+También funciona sobre un fork (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <bloque>`), que es lo que permite probar `scripts/kuru/open-market.ts` contra el código real del Router de Kuru.
+
 ## Deploy en Monad testnet
 Despliega `KycRegistry`, `IssuanceFactory` y un lote de soja de ejemplo (1.000.000 shards a 0,10 USDC, soft cap 40.000 USDC, hard cap 100.000 USDC, 7 días).
 
