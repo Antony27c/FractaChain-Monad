@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1"],
   webpack: (config) => {
     // Privy y los conectores de wagmi importan paquetes opcionales
     // (x402, React Native, Farcaster) que no usamos en la web.
