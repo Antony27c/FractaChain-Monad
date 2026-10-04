@@ -28,6 +28,8 @@ forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcas
 
 También funciona sobre un fork (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <bloque>`), que es lo que permite probar `scripts/kuru/open-market.ts` contra el código real del Router de Kuru.
 
+El frontend lee las direcciones de `frontend/.env.development.local` (ignorado por git): completar `NEXT_PUBLIC_CHAIN_ID=31337`, `NEXT_PUBLIC_RPC_URL`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC` y `NEXT_PUBLIC_USDC` con las direcciones que imprime el script.
+
 ## Deploy en Monad testnet
 Despliega `KycRegistry`, `IssuanceFactory` y un lote de soja de ejemplo (1.000.000 shards a 0,10 USDC, soft cap 40.000 USDC, hard cap 100.000 USDC, 7 días).
 
