@@ -1,8 +1,10 @@
+
 .agents/
 .claude/
 skills-lock.json
 .env
 .env.local
+.env*.local
 contracts/out/
 contracts/cache/
 contracts/broadcast/
