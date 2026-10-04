@@ -1,4 +1,4 @@
-import { createConfig as createWagmiConfig, http } from "wagmi";
+import { createConfig as createWagmiConfig, createStorage, http, noopStorage } from "wagmi";
 import { mock } from "wagmi/connectors";
 import { createConfig as createPrivyConfig } from "@privy-io/wagmi";
 import { chain, rpcUrl } from "@/lib/env";
@@ -16,7 +16,7 @@ export function createDevConfig(account: `0x${string}`) {
     chains: [chain],
     transports,
     connectors: [mock({ accounts: [account] })],
-    storage: null,
+    storage: createStorage({ storage: noopStorage }),
     ssr: true,
   }) as unknown as typeof config;
 }
