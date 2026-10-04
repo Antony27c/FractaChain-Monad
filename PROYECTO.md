@@ -79,11 +79,11 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
                   Inversores compran y venden en el order book
 ```
 
-**Contratos propios (Solidity + Foundry, Monad testnet).** Escritos y con tests (`contracts/`, 63 tests pasando: unitarios, fuzz e invariantes):
+**Contratos propios (Solidity + Foundry, Monad testnet).** Escritos y con tests (`contracts/`, 79 tests pasando: unitarios, fuzz e invariantes):
 - `KycRegistry.sol`: lista de direcciones verificadas. Un dueño las aprueba, y con la verificación abierta cualquiera puede usar `verifyMyself()` (botón "verificarme" de la demo).
 - `ShardToken.sol`: ERC-20 de 18 decimales con metadata del activo (tipo, unidad, cantidad, campaña) y supply fijo emitido una sola vez.
 - `Offering.sol`: licitación primaria a precio fijo con `contribute`, `finalize`, `claim` y `refund`. Si se llega al soft cap, el USDC va al emisor y cada inversor retira sus shards; si no, cada inversor recupera su USDC. Revisión propia hecha: guardia de reentrancia en las 4 funciones y tests con token malicioso.
-- `IssuanceFactory.sol`: crea el token y su `Offering` en una transacción y registra cada lote. Solo emisores verificados.
+- `IssuanceFactory.sol`: crea el token y su `Offering` en una transacción y registra cada lote. Solo emisores verificados, y exige que el supply del lote alcance para vender el hard cap.
 - `script/DeployLocal.s.sol`: deploy de todo el stack en anvil con un USDC mock, para dev local y para el frontend (`frontend/.env.development.local`).
 - Guía para el frontend: `contracts/CONTRATOS.md`. ABIs en `contracts/abi/` (regenerados con la revisión).
 

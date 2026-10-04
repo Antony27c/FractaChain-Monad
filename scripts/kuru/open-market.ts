@@ -10,7 +10,8 @@ const env = (key: string, fallback?: string): string => {
 const flag = (name: string): boolean => process.argv.includes(name);
 const option = (name: string): string | undefined => {
   const i = process.argv.indexOf(name);
-  return i >= 0 ? process.argv[i + 1] : undefined;
+  const value = i >= 0 ? process.argv[i + 1] : undefined;
+  return value !== undefined && !value.startsWith("--") ? value : undefined;
 };
 
 const JSON_OUT = flag("--json");
@@ -80,6 +81,9 @@ async function main() {
   }
 
   if (!baseToken) throw new Error("Missing BASE_TOKEN (or pass --offering <addr>)");
+  if (Number.isNaN(Number(SEED_BASE)) || Number(SEED_BASE) <= 0) {
+    throw new Error(`Invalid seed amount "${SEED_BASE}" (pass --seed <n> or SEED_BASE)`);
+  }
 
   const base = new ethers.Contract(baseToken, ERC20_ABI, provider);
   const quote = new ethers.Contract(quoteToken, ERC20_ABI, provider);

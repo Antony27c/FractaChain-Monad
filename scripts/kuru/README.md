@@ -62,3 +62,5 @@ PRIVATE_KEY=0x... npm run open-market -- --offering <addr> --seed 500000 --json 
 
 ## Cómo se probó
 Sobre un fork local de Monad testnet (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <bloque>`) con tokens de prueba: el mercado se creó, el vault quedó con 500.000 shards y 50.000 USDC, y el libro mostró bid ≈ 0,099 y ask 0,100. El modo `--offering` se probó con el flujo completo: contribute → finalize → claim → open-market. No se probó todavía en la testnet real, ni con el USDC de Kuru.
+
+El `--dry-run` también corre sobre un anvil local sin fork (deploy con `DeployLocal.s.sol`): resuelve token, moneda y precio del `Offering` y verifica saldos, pero el deploy real del mercado necesita el fork porque el Router de Kuru no existe en anvil plano. En modo manual sobre anvil hay que pasar `QUOTE_TOKEN` con la dirección del USDC mock.
