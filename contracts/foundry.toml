@@ -6,6 +6,7 @@ solc_version = "0.8.28"
 evm_version = "prague"
 optimizer = true
 optimizer_runs = 200
+fs_permissions = [{ access = "write", path = "../frontend" }]
 
 [rpc_endpoints]
 monad_testnet = "${MONAD_TESTNET_RPC_URL}"
