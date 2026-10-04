@@ -22,7 +22,9 @@ export function formatShards(value: bigint, maxDecimals = 2) {
 }
 
 export function formatPricePerShard(pricePerShard: bigint) {
-  return formatUsdc(pricePerShard, 4);
+  const [int, dec = ""] = formatUnits(pricePerShard, USDC_DECIMALS).split(".");
+  const trimmed = dec.replace(/0+$/, "").padEnd(2, "0");
+  return `${int},${trimmed} USDC`;
 }
 
 export function formatDate(timestamp: bigint) {
