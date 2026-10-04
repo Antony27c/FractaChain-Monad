@@ -108,6 +108,32 @@ contract IssuanceFactoryTest is Test {
         factory.createIssuance(p);
     }
 
+    function test_RevertWhen_OfferingParamsInvalid() public {
+        IssuanceFactory.CreateParams memory p = _params();
+        p.pricePerShard = 0;
+        vm.prank(issuer);
+        vm.expectRevert(Offering.InvalidParams.selector);
+        factory.createIssuance(p);
+
+        p = _params();
+        p.softCap = p.hardCap + 1;
+        vm.prank(issuer);
+        vm.expectRevert(Offering.InvalidParams.selector);
+        factory.createIssuance(p);
+
+        assertEq(factory.issuancesCount(), 0);
+    }
+
+    function test_RevertWhen_SupplyBelowHardCap() public {
+        IssuanceFactory.CreateParams memory p = _params();
+        p.supply = SUPPLY - 1;
+        vm.prank(issuer);
+        vm.expectRevert(IssuanceFactory.SupplyBelowHardCap.selector);
+        factory.createIssuance(p);
+
+        assertEq(factory.issuancesCount(), 0);
+    }
+
     function test_RevertWhen_ZeroAddressInConstructor() public {
         vm.expectRevert(IssuanceFactory.ZeroAddress.selector);
         new IssuanceFactory(address(0), address(usdc));

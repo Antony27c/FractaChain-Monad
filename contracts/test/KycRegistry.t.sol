@@ -82,6 +82,39 @@ contract KycRegistryTest is Test {
         registry.setVerified(bob, true);
     }
 
+    function test_RevertWhen_TransferOwnershipToZero() public {
+        vm.prank(owner);
+        vm.expectRevert(KycRegistry.ZeroAddress.selector);
+        registry.transferOwnership(address(0));
+    }
+
+    function test_RevertWhen_NonOwnerTransfersOwnership() public {
+        vm.prank(alice);
+        vm.expectRevert(KycRegistry.NotOwner.selector);
+        registry.transferOwnership(alice);
+    }
+
+    function test_RevertWhen_NonOwnerSetsOpenVerification() public {
+        vm.prank(alice);
+        vm.expectRevert(KycRegistry.NotOwner.selector);
+        registry.setOpenVerification(true);
+    }
+
+    function test_VerifyMyselfAfterRevoke() public {
+        vm.prank(owner);
+        registry.setOpenVerification(true);
+
+        vm.prank(alice);
+        registry.verifyMyself();
+        vm.prank(owner);
+        registry.setVerified(alice, false);
+        assertFalse(registry.isVerified(alice));
+
+        vm.prank(alice);
+        registry.verifyMyself();
+        assertTrue(registry.isVerified(alice));
+    }
+
     function testFuzz_UnverifiedByDefault(address account) public view {
         assertFalse(registry.isVerified(account));
     }

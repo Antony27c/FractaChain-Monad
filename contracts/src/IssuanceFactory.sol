@@ -36,6 +36,7 @@ contract IssuanceFactory {
     error TransferFailed();
     error InvalidSupply();
     error InvalidDuration();
+    error SupplyBelowHardCap();
 
     constructor(address kyc_, address paymentToken_) {
         if (kyc_ == address(0) || paymentToken_ == address(0)) revert ZeroAddress();
@@ -59,6 +60,7 @@ contract IssuanceFactory {
             p.hardCap,
             block.timestamp + p.duration
         );
+        if (off.shardsFor(p.hardCap) > p.supply) revert SupplyBelowHardCap();
         if (!shard.transfer(address(off), p.supply)) revert TransferFailed();
 
         token = address(shard);

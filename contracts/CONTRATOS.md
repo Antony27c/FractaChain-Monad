@@ -72,6 +72,7 @@ Si una transacción falla, el nombre del error indica por qué. Para mostrar men
 | `NothingToClaim` / `NothingToRefund` | No hay nada para esa dirección. |
 | `ZeroAmount` | Monto en cero. |
 | `IssuerNotVerified` | El emisor no está verificado (al crear un lote). |
+| `SupplyBelowHardCap` | El supply del lote no alcanza para vender el hard cap (al crear un lote). |
 | `TransferFailed` | Falló la transferencia del token de pago. |
 | `ReentrantCall` | No debería aparecer en uso normal: protección de reentrancia. |
 

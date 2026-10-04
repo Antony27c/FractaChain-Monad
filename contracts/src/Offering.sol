@@ -77,7 +77,7 @@ contract Offering {
         }
         if (
             pricePerShard_ == 0 || pricePerShard_ > SHARD_UNIT || softCap_ == 0 || softCap_ > hardCap_
-                || deadline_ <= block.timestamp
+                || deadline_ <= block.timestamp || shard_ == paymentToken_
         ) {
             revert InvalidParams();
         }
