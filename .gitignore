@@ -1,7 +1,16 @@
 .agents/
 .claude/
 skills-lock.json
+.agents/
+.claude/
+skills-lock.json
+.env
+.env.local
+.env*.local
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+node_modules/
 
-# variables de entorno locales (App ID de Privy, etc.)
 .env.local
 .env*.local

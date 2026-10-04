@@ -1,0 +1,25 @@
+{
+  "name": "shardchain-kuru-scripts",
+  "version": "1.0.0",
+  "description": "Kuru market scripts for ShardChain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "open-market": "tsx open-market.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@kuru-labs/kuru-sdk": "^0.0.95",
+    "ethers": "^5.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

@@ -79,23 +79,31 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
                   Inversores compran y venden en el order book
 ```
 
-**Contratos propios (Solidity + Foundry, Monad testnet)**
-- `KycRegistry.sol`: lista de direcciones verificadas. En la demo, un botón "verificarme" las autoriza (mock).
-- `ShardToken.sol`: ERC-20 con metadata del activo (tipo, cantidad, campaña).
-- `IssuanceFactory.sol`: crea el token y su `Offering`.
-- `Offering.sol`: licitación primaria con `contribute`, `finalize` y `refund`. Si no se llega al soft cap al deadline, cada inversor reclama su reembolso.
+**Contratos propios (Solidity + Foundry, Monad testnet).** Escritos y con tests (`contracts/`, 57 tests pasando):
+- `KycRegistry.sol`: lista de direcciones verificadas. Un dueño las aprueba, y con la verificación abierta cualquiera puede usar `verifyMyself()` (botón "verificarme" de la demo).
+- `ShardToken.sol`: ERC-20 de 18 decimales con metadata del activo (tipo, unidad, cantidad, campaña) y supply fijo emitido una sola vez.
+- `Offering.sol`: licitación primaria a precio fijo con `contribute`, `finalize`, `claim` y `refund`. Si se llega al soft cap, el USDC va al emisor y cada inversor retira sus shards; si no, cada inversor recupera su USDC.
+- `IssuanceFactory.sol`: crea el token y su `Offering` en una transacción y registra cada lote. Solo emisores verificados.
+- Guía para el frontend: `contracts/CONTRATOS.md`. ABIs en `contracts/abi/`.
 
-**Integración con Kuru (offchain, con el SDK)**
-- Calcular precisiones, llamar a `deployProxy` y sembrar el vault tras la licitación.
+**Lote de ejemplo (script de deploy):** 1.000.000 shards de soja (100 tn, campaña 2025/26) a 0,10 USDC, soft cap 40.000 USDC, hard cap 100.000 USDC, 7 días.
+
+**Integración con Kuru (offchain, con el SDK):** `scripts/kuru/open-market.ts` calcula las precisiones, crea el mercado y siembra el vault. Probado sobre un fork local de la testnet con tokens de prueba: el mercado quedó con bid ≈ 0,099 y ask 0,100. Ver `scripts/kuru/README.md`.
+
+**Qué falta probar en la testnet real:** el deploy de los contratos, y el script de Kuru con shards reales y el USDC de Kuru. Todo lo anterior se probó en tests y en forks.
 
 **Frontend:** Next.js + wagmi + viem. Wallet embebida con Privy.
 
-**Direcciones de Kuru en testnet.** La documentación se contradice, **hay que verificar cuáles son las vigentes antes de integrar**:
+**Direcciones de Kuru en testnet.** La documentación de Kuru da dos juegos de direcciones. Verificado el 3 de octubre en Monad testnet:
 
 | Contrato | Página "Contract Addresses" | Quick Start del SDK |
 |---|---|---|
-| Router | `0x7EFbE105Ca7415dE98F96622173458ac1c054630` | `0x1f5A250c4A506DA4cE584173c6ed1890B1bf7187` |
-| MarginAccount | `0xd029C2D98ff85D8F64799017fE00a59B1159CE02` | `0xdDDaBd30785bA8b45e434a1f134BDf304d6125d9` |
+| Router | `0x7EFbE105Ca7415dE98F96622173458ac1c054630` (tiene código) | `0x1f5A250c4A506DA4cE584173c6ed1890B1bf7187` (**sin código**) |
+| MarginAccount | `0xd029C2D98ff85D8F64799017fE00a59B1159CE02` (tiene código) | `0xdDDaBd30785bA8b45e434a1f134BDf304d6125d9` (**sin código**) |
+
+**Se usan las de la página "Contract Addresses".** Las del Quick Start están desactualizadas. Además, el `marginAccountAddress()` del Router vigente devuelve el MarginAccount de esa misma columna.
+
+**Sobre `deployProxy`.** Verificado con un test sobre un fork de Monad testnet (`contracts/test/KuruFork.t.sol`): una cuenta cualquiera desplegó un mercado para un token propio de 18 decimales contra el USDC de Kuru (6 decimales). El test usa precisiones de ejemplo (`sizePrecision` 1e10, `pricePrecision` 1e9, `tickSize` 100, `minSize` 1e8, `maxSize` 1e16, comisiones 30/10 bps y spread 100). El script `open-market.ts` usa en cambio las que calcula `calculatePrecisions` del SDK según el precio. Es una simulación sobre un fork, no una transacción real. El token tiene que exponer `decimals()` y `symbol()`; Kuru los lee al crear el mercado.
 
 ## 7. Moneda de pago: USDC de testnet de Kuru
 
@@ -112,8 +120,8 @@ Implicancias:
 
 | Días | Objetivo |
 |---|---|
-| 1-2 (3-4 oct) | Repo y entorno Foundry para Monad. `KycRegistry`, `ShardToken`, `IssuanceFactory`, `Offering` con tests. Probar un `deployProxy` en testnet para confirmar que es permisionless. |
-| 3-4 | Deploy en testnet. Script de integración con Kuru: crear mercado shard/USDC y sembrar liquidez. |
+| 1-2 (3-4 oct) | **Hecho el 3 de oct:** entorno Foundry, `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory` con tests, script de deploy, ABIs y guía para el frontend, y script de Kuru (probado en fork). **Pendiente:** confirmar `deployProxy` con una transacción real. |
+| 3-4 | Deploy en testnet con una wallet de prueba. Probar el script de Kuru con los shards reales. Revisión de los contratos. |
 | 5-7 | Frontend: licitación (contribuir, reembolsar) y vista del mercado. |
 | 8 | Wallet embebida, pulido y flujo completo de punta a punta. |
 | 9-10 | Video de demo, README, lectura final de las bases de Kuru y envío. |
@@ -121,10 +129,11 @@ Implicancias:
 ## 9. Preguntas abiertas
 
 1. **¿Alcanza el USDC de testnet de Kuru?** Probar el swap MON a USDC y estimar cuánto se consigue.
-2. **Direcciones vigentes de Kuru** (ver sección 6).
+2. **Confirmar `deployProxy` con una transacción real** en testnet. El test sobre fork indica que es permisionless (ver sección 6). Las direcciones vigentes ya están verificadas.
 3. **Bases de los bounties de Kuru y Privy:** qué se exige para que cuenten. Probar el primer día que Privy funcione en Monad testnet.
-4. **Parámetros del lote de demo:** supply de shards, decimales, precio, soft cap y hard cap.
-5. **Roles del equipo.**
+4. **Roles del equipo.** Contratos e integración con Kuru: Antony. Frontend: Juli.
+
+Resuelta: los parámetros del lote de demo (ver sección 6).
 
 ## 10. Glosario
 
@@ -133,7 +142,7 @@ Implicancias:
 - **Emisor:** productor o pyme que fracciona un lote.
 - **Offering (licitación primaria):** venta inicial de shards a precio fijo, con soft cap, hard cap y deadline.
 - **Soft cap / hard cap:** mínimo que debe recaudarse para que la emisión sea válida / máximo que se acepta.
-- **Reembolso:** devolución automática de las contribuciones si no se alcanza el soft cap.
+- **Reembolso:** devolución de las contribuciones si no se alcanza el soft cap. Cada inversor la reclama con `refund()`.
 - **KYC Registry:** lista de direcciones verificadas que pueden participar en la licitación.
 - **Mercado secundario:** negociación de shards en el order book de Kuru después de la licitación.
 - **Mercado de Kuru:** par shard/USDC desplegado con el Router de Kuru.
