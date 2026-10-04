@@ -11,11 +11,11 @@ export function DevAccountPicker() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">Modo dev</span>
+      <span className="rounded-full bg-warn/10 px-3 py-1 text-xs font-medium text-warn">Modo dev</span>
       <select
         value={index}
         onChange={(e) => setIndex(Number(e.target.value))}
-        className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm"
+        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
       >
         {DEV_ACCOUNTS.map((account, i) => (
           <option key={account.address} value={i}>
@@ -23,7 +23,7 @@ export function DevAccountPicker() {
           </option>
         ))}
       </select>
-      {address && <span className="font-mono text-sm text-neutral-600">{shortAddress(address)}</span>}
+      {address && <span className="hidden font-mono text-sm text-muted sm:inline">{shortAddress(address)}</span>}
     </div>
   );
 }

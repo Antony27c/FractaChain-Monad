@@ -55,7 +55,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   if (!privyAppId) {
     return (
-      <p className="p-8 text-center text-red-600">
+      <p className="p-8 text-center text-bad">
         Falta <code>NEXT_PUBLIC_PRIVY_APP_ID</code>. Copiá{" "}
         <code>.env.example</code> a <code>.env.local</code> y poné el App ID de
         Privy.

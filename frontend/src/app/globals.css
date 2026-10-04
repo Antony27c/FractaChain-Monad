@@ -1,18 +1,271 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --surface: rgba(255, 255, 255, 0.7);
+  --ink: #111111;
+  --muted: #525252;
+  --line: rgba(0, 0, 0, 0.1);
+  --accent: #4ea743;
+  --accent-strong: #3d8a34;
+  --accent-ink: #10240c;
+  --ok: #166534;
+  --warn: #8a4a0b;
+  --bad: #b91c1c;
+  --lcd-green: #b8f0a4;
+  --lcd-green-deep: #7ed86a;
+  color-scheme: light;
+}
+
+html.dark {
+  --bg: #09090b;
+  --surface: rgba(24, 24, 27, 0.72);
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #7ed86a;
+  --accent-strong: #a3e693;
+  --accent-ink: #09090b;
+  --ok: #7bd69a;
+  --warn: #e5b567;
+  --bad: #f87171;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-leaf-50: #f4fbf0;
+  --color-leaf-100: #e4f3db;
+  --color-leaf-200: #cfe8c4;
+  --color-leaf-400: #8fcb7a;
+  --font-sans: var(--font-lato), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-lcd), "SF Mono", ui-monospace, monospace;
+}
+
+html {
+  view-transition-name: root;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.4s;
+}
+
+html,
+body {
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100%;
+  overflow-x: clip;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  font-family: var(--font-lato), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+}
+
+p {
+  line-height: 1.65;
+}
+
+.font-lcd {
+  font-family: var(--font-lcd), "SF Mono", ui-monospace, monospace;
+  letter-spacing: 0.06em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  border: 1px solid rgba(150, 200, 130, 0.28);
+}
+
+.crystal-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(232, 248, 224, 0.4));
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  border: 1px solid rgba(140, 190, 120, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 18px 40px -28px rgba(70, 130, 50, 0.35);
+}
+
+.liquid-sheen {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.85), transparent 45%),
+    repeating-linear-gradient(115deg, transparent 0 13px, rgba(184, 240, 164, 0.12) 13px 14px);
+}
+
+.logo-lockup {
+  display: block;
+}
+
+.btn-lcd {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-lcd), ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #163012;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 255, 220, 0.92) 0%,
+    rgba(184, 240, 164, 0.55) 48%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  border: 1px solid rgba(126, 196, 110, 0.55);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -8px 16px rgba(126, 180, 100, 0.18),
+    0 10px 24px -16px rgba(80, 140, 50, 0.55);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.btn-lcd::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 4px);
+  opacity: 0.45;
+}
+
+.btn-lcd-solid {
+  background: linear-gradient(180deg, #d8f7c8 0%, #9ee087 45%, #b8f0a4 100%);
+  color: #10240c;
+}
+
+.btn-lcd-ghost {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(230, 248, 222, 0.35));
+  color: #2a3d22;
+}
+
+.btn-lcd:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
+
+.hero-lcd {
+  font-family: var(--font-serif), Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: italic;
+  color: #4ea743;
+  text-shadow: 0 0 12px rgba(78, 167, 67, 0.28);
+  letter-spacing: -0.015em;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8c8c8;
+  border-radius: 3px;
+}
+
+html.dark .crystal-backdrop {
+  background: #09090b;
+}
+
+html.dark .crystal-backdrop > div:not(.liquid-sheen) {
+  opacity: 0.22;
+  filter: saturate(0.55) brightness(0.45);
+}
+
+html.dark .crystal-card {
+  background: linear-gradient(180deg, rgba(28, 32, 28, 0.86), rgba(14, 18, 14, 0.72));
+  border-color: rgba(140, 190, 120, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 40px -28px rgba(0, 0, 0, 0.7);
+}
+
+html.dark .glass-panel {
+  background: rgba(18, 20, 18, 0.62);
+  border-color: rgba(150, 200, 130, 0.2);
+}
+
+html.dark .hero-lcd {
+  color: #7ed86a;
+  text-shadow: 0 0 16px rgba(126, 216, 106, 0.35);
+}
+
+html.dark .btn-lcd-ghost {
+  background: linear-gradient(180deg, rgba(32, 40, 32, 0.75), rgba(18, 28, 18, 0.5));
+  color: #d7f0cc;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #141416;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes fill-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes pulse-soft {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  .fill-in {
+    animation: fill-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 200ms);
+  }
+
+  .skeleton {
+    animation: pulse-soft 1.6s ease-in-out infinite;
+  }
 }

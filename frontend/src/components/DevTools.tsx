@@ -44,45 +44,45 @@ export function DevTools() {
   return (
     <div className="fixed bottom-4 right-4 z-50 w-72 text-sm">
       {open ? (
-        <div className="rounded-2xl border border-amber-300 bg-white p-4 shadow-lg">
+        <div className="rounded-2xl border border-warn/50 bg-surface p-4 text-ink shadow-lg">
           <div className="flex items-center justify-between">
             <span className="font-semibold">Herramientas dev</span>
-            <button onClick={() => setOpen(false)} className="text-neutral-500 hover:text-neutral-900">
+            <button onClick={() => setOpen(false)} className="text-muted hover:text-ink">
               Cerrar
             </button>
           </div>
-          {block && <p className="mt-2 text-xs text-neutral-500">Hora de la cadena: {formatDate(block.timestamp)}</p>}
+          {block && <p className="mt-2 text-xs text-muted">Hora de la cadena: {formatDate(block.timestamp)}</p>}
           <div className="mt-3 space-y-2">
             <button
               onClick={mint}
               disabled={!address || tx.pending !== null}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 hover:bg-neutral-100 disabled:opacity-50"
+              className="w-full rounded-lg border border-line px-3 py-2 hover:bg-bg disabled:opacity-50"
             >
               Cargar 10.000 USDC de prueba
             </button>
             <div className="flex gap-2">
               <button
                 onClick={() => advance(1)}
-                className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 hover:bg-neutral-100"
+                className="flex-1 rounded-lg border border-line px-3 py-2 hover:bg-bg"
               >
                 +1 día
               </button>
               <button
                 onClick={() => advance(7)}
-                className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 hover:bg-neutral-100"
+                className="flex-1 rounded-lg border border-line px-3 py-2 hover:bg-bg"
               >
                 +7 días
               </button>
             </div>
           </div>
           {(message || tx.error || tx.success) && (
-            <p className="mt-3 text-xs text-neutral-600">{tx.error ?? message ?? tx.success}</p>
+            <p className="mt-3 text-xs text-muted">{tx.error ?? message ?? tx.success}</p>
           )}
         </div>
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="ml-auto block rounded-full bg-amber-400 px-4 py-2 font-medium text-amber-950 shadow-lg"
+          className="ml-auto block rounded-full bg-warn px-4 py-2 font-medium text-bg shadow-lg transition active:scale-[0.98]"
         >
           Dev
         </button>

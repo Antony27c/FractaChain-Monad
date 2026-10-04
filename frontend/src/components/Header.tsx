@@ -1,26 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import { LoginButton } from "./LoginButton";
 import { DevAccountPicker } from "./DevAccountPicker";
+import { LangToggle, ThemeToggle } from "./ThemeToggle";
+import { useI18n } from "@/lib/i18n";
 import { isDevMode } from "@/lib/env";
 
+const navLink =
+  "rounded-lg px-2.5 py-2 text-[13px] font-bold tracking-tight text-muted transition-colors hover:bg-ink/5 hover:text-ink";
+
 export function Header() {
+  const { t } = useI18n();
+
   return (
-    <header className="border-b border-neutral-200 bg-white">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+    <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
+        <div className="flex min-w-0 items-center gap-6">
+          <Link href="/" className="text-[1.45rem] font-extrabold leading-none tracking-[-0.04em] text-ink">
             ShardChain
           </Link>
-          <nav className="flex items-center gap-5 text-sm text-neutral-600">
-            <Link href="/" className="hover:text-neutral-900">
-              Lotes
+          <nav className="flex items-center gap-0.5">
+            <Link href="/" className={navLink}>
+              {t("nav.lots")}
             </Link>
-            <Link href="/create" className="hover:text-neutral-900">
-              Emitir lote
+            <Link href="/create" className={navLink}>
+              {t("nav.create")}
             </Link>
           </nav>
         </div>
-        {isDevMode ? <DevAccountPicker /> : <LoginButton />}
+        <div className="flex shrink-0 items-center gap-1.5">
+          <LangToggle />
+          <ThemeToggle />
+          {isDevMode ? <DevAccountPicker /> : <LoginButton />}
+        </div>
       </div>
     </header>
   );
