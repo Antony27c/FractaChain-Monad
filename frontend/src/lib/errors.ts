@@ -17,6 +17,13 @@ const MESSAGES: Record<string, string> = {
   InvalidSupply: "El supply debe ser mayor a cero.",
   InvalidDuration: "La duración debe ser mayor a cero.",
   OpenVerificationDisabled: "La verificación abierta está deshabilitada.",
+  SupplyBelowHardCap: "El supply del lote no alcanza para vender el máximo (hard cap).",
+  TransferFailed: "Falló la transferencia del token. Revisá tu saldo y la autorización.",
+  ReentrantCall: "Llamada reentrante bloqueada.",
+  InsufficientBalance: "Saldo insuficiente.",
+  InsufficientAllowance: "Falta autorizar el gasto del token (allowance).",
+  NotOwner: "Solo el dueño del contrato puede hacer esto.",
+  ZeroAddress: "La dirección no puede ser cero.",
 };
 
 export function errorMessage(error: unknown): string {

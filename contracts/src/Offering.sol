@@ -32,6 +32,7 @@ contract Offering {
     Status public status;
     uint256 public totalRaised;
     mapping(address => uint256) public contributions;
+    uint256 private _locked;
 
     event Contributed(address indexed investor, uint256 amount, uint256 totalRaised);
     event Finalized(Status status, uint256 totalRaised);
@@ -52,6 +53,14 @@ contract Offering {
     error NotFailed();
     error NothingToRefund();
     error TransferFailed();
+    error ReentrantCall();
+
+    modifier nonReentrant() {
+        if (_locked != 0) revert ReentrantCall();
+        _locked = 1;
+        _;
+        _locked = 0;
+    }
 
     constructor(
         address shard_,
@@ -68,7 +77,7 @@ contract Offering {
         }
         if (
             pricePerShard_ == 0 || pricePerShard_ > SHARD_UNIT || softCap_ == 0 || softCap_ > hardCap_
-                || deadline_ <= block.timestamp
+                || deadline_ <= block.timestamp || shard_ == paymentToken_
         ) {
             revert InvalidParams();
         }
@@ -82,7 +91,7 @@ contract Offering {
         deadline = deadline_;
     }
 
-    function contribute(uint256 amount) external {
+    function contribute(uint256 amount) external nonReentrant {
         if (status != Status.Active) revert NotActive();
         if (block.timestamp >= deadline) revert OfferingEnded();
         if (!kyc.isVerified(msg.sender)) revert NotVerified();
@@ -99,7 +108,7 @@ contract Offering {
         emit Contributed(msg.sender, amount, newTotal);
     }
 
-    function finalize() external {
+    function finalize() external nonReentrant {
         if (status != Status.Active) revert NotActive();
         if (block.timestamp < deadline && totalRaised < hardCap) revert CannotFinalizeYet();
 
@@ -117,7 +126,7 @@ contract Offering {
         emit Finalized(status, totalRaised);
     }
 
-    function claim() external {
+    function claim() external nonReentrant {
         if (status != Status.Succeeded) revert NotSucceeded();
         uint256 paid = contributions[msg.sender];
         if (paid == 0) revert NothingToClaim();
@@ -129,7 +138,7 @@ contract Offering {
         emit Claimed(msg.sender, shards);
     }
 
-    function refund() external {
+    function refund() external nonReentrant {
         if (status != Status.Failed) revert NotFailed();
         uint256 paid = contributions[msg.sender];
         if (paid == 0) revert NothingToRefund();

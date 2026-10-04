@@ -6,6 +6,7 @@ import {Offering} from "../src/Offering.sol";
 import {ShardToken} from "../src/ShardToken.sol";
 import {KycRegistry} from "../src/KycRegistry.sol";
 import {TestToken} from "../src/mocks/TestToken.sol";
+import {FalseToken, NoReturnToken} from "../src/mocks/WeirdTokens.sol";
 
 contract OfferingTest is Test {
     uint256 constant SUPPLY = 1_000_000 ether;
@@ -83,6 +84,40 @@ contract OfferingTest is Test {
     function test_RevertWhen_PriceAboveShardUnit() public {
         vm.expectRevert(Offering.InvalidParams.selector);
         new Offering(address(shard), address(usdc), address(kyc), issuer, 1e18 + 1, SOFT_CAP, HARD_CAP, deadline);
+    }
+
+    function test_RevertWhen_SameShardAndPaymentToken() public {
+        vm.expectRevert(Offering.InvalidParams.selector);
+        new Offering(address(shard), address(shard), address(kyc), issuer, PRICE, SOFT_CAP, HARD_CAP, deadline);
+    }
+
+    function test_ContributeTwiceAccumulates() public {
+        _contribute(alice, 1_000e6);
+        _contribute(alice, 2_000e6);
+
+        assertEq(offering.contributions(alice), 3_000e6);
+        assertEq(offering.totalRaised(), 3_000e6);
+    }
+
+    function test_RevertWhen_ContributeAfterFinalize() public {
+        _contribute(alice, 50_000e6);
+        vm.warp(deadline);
+        offering.finalize();
+
+        vm.prank(alice);
+        vm.expectRevert(Offering.NotActive.selector);
+        offering.contribute(1_000e6);
+    }
+
+    function test_FinalizeEmptyAfterDeadline() public {
+        vm.warp(deadline);
+        offering.finalize();
+
+        assertEq(uint256(offering.status()), uint256(Offering.Status.Failed));
+        assertEq(shard.balanceOf(issuer), SUPPLY);
+        assertEq(shard.balanceOf(address(offering)), 0);
+        assertEq(usdc.balanceOf(address(offering)), 0);
+        assertEq(usdc.balanceOf(issuer), 0);
     }
 
     function test_SmallestContributionStillGetsShards() public {
@@ -323,6 +358,101 @@ contract OfferingTest is Test {
         vm.prank(stranger);
         vm.expectRevert(Offering.NothingToRefund.selector);
         offering.refund();
+    }
+
+    function _offeringWithPayment(TestToken shard_, FalseToken pay) internal returns (Offering o) {
+        o = new Offering(
+            address(shard_), address(pay), address(kyc), issuer, PRICE, SOFT_CAP, HARD_CAP, deadline
+        );
+        shard_.mint(address(o), SUPPLY);
+    }
+
+    function test_RevertWhen_ContributePullReturnsFalse() public {
+        FalseToken pay = new FalseToken(6);
+        Offering o = _offeringWithPayment(new TestToken("Shard", "SH", 18), pay);
+        pay.mint(alice, 10_000e6);
+        vm.prank(alice);
+        pay.approve(address(o), type(uint256).max);
+
+        pay.setFailTransferFrom(true);
+        vm.prank(alice);
+        vm.expectRevert(Offering.TransferFailed.selector);
+        o.contribute(1_000e6);
+
+        assertEq(o.totalRaised(), 0);
+        assertEq(o.contributions(alice), 0);
+        assertEq(pay.balanceOf(alice), 10_000e6);
+    }
+
+    function test_FinalizeRetriableWhenPaymentPushFails() public {
+        FalseToken pay = new FalseToken(6);
+        Offering o = _offeringWithPayment(new TestToken("Shard", "SH", 18), pay);
+        pay.mint(alice, 50_000e6);
+        vm.startPrank(alice);
+        pay.approve(address(o), type(uint256).max);
+        o.contribute(50_000e6);
+        vm.stopPrank();
+        vm.warp(deadline);
+
+        pay.setFailTransfer(true);
+        vm.expectRevert(Offering.TransferFailed.selector);
+        o.finalize();
+        assertEq(uint256(o.status()), uint256(Offering.Status.Active));
+
+        pay.setFailTransfer(false);
+        o.finalize();
+        assertEq(uint256(o.status()), uint256(Offering.Status.Succeeded));
+        assertEq(pay.balanceOf(issuer), 50_000e6);
+    }
+
+    function test_RefundRetriableWhenPaymentPushFails() public {
+        FalseToken pay = new FalseToken(6);
+        Offering o = _offeringWithPayment(new TestToken("Shard", "SH", 18), pay);
+        pay.mint(alice, 10_000e6);
+        vm.startPrank(alice);
+        pay.approve(address(o), type(uint256).max);
+        o.contribute(10_000e6);
+        vm.stopPrank();
+        vm.warp(deadline);
+        o.finalize();
+        assertEq(uint256(o.status()), uint256(Offering.Status.Failed));
+
+        pay.setFailTransfer(true);
+        vm.prank(alice);
+        vm.expectRevert(Offering.TransferFailed.selector);
+        o.refund();
+        assertEq(o.contributions(alice), 10_000e6);
+
+        pay.setFailTransfer(false);
+        vm.prank(alice);
+        o.refund();
+        assertEq(pay.balanceOf(alice), 10_000e6);
+        assertEq(o.contributions(alice), 0);
+    }
+
+    function test_NoReturnPaymentTokenWorks() public {
+        NoReturnToken pay = new NoReturnToken(6);
+        TestToken shard_ = new TestToken("Shard", "SH", 18);
+        Offering o = new Offering(
+            address(shard_), address(pay), address(kyc), issuer, PRICE, SOFT_CAP, HARD_CAP, deadline
+        );
+        shard_.mint(address(o), SUPPLY);
+        pay.mint(alice, 60_000e6);
+
+        vm.startPrank(alice);
+        pay.approve(address(o), type(uint256).max);
+        o.contribute(50_000e6);
+        vm.stopPrank();
+        vm.warp(deadline);
+        o.finalize();
+
+        assertEq(uint256(o.status()), uint256(Offering.Status.Succeeded));
+        assertEq(pay.balanceOf(issuer), 50_000e6);
+
+        vm.prank(alice);
+        o.claim();
+        assertEq(shard_.balanceOf(alice), 500_000 ether);
+        assertEq(pay.balanceOf(address(o)), 0);
     }
 
     function testFuzz_AllocationsNeverExceedSupply(uint256 a, uint256 b) public {

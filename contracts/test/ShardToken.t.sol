@@ -95,6 +95,26 @@ contract ShardTokenTest is Test {
         token.transferFrom(holder, bob, 2 ether);
     }
 
+    function test_RevertWhen_TransferFromToZero() public {
+        vm.prank(holder);
+        token.approve(alice, 1 ether);
+
+        vm.prank(alice);
+        vm.expectRevert(ShardToken.ZeroAddress.selector);
+        token.transferFrom(holder, address(0), 1 ether);
+    }
+
+    function test_AllowanceFullyConsumed() public {
+        vm.prank(holder);
+        token.approve(alice, 5 ether);
+
+        vm.prank(alice);
+        token.transferFrom(holder, bob, 5 ether);
+
+        assertEq(token.allowance(holder, alice), 0);
+        assertEq(token.balanceOf(bob), 5 ether);
+    }
+
     function test_InfiniteAllowanceIsNotDecreased() public {
         vm.prank(holder);
         token.approve(alice, type(uint256).max);

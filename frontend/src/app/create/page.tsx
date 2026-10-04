@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { issuanceFactoryAbi, kycRegistryAbi } from "@/lib/abi";
 import { addresses, contractsConfigured } from "@/lib/env";
 import { useVerification } from "@/hooks/useInvestor";
@@ -62,6 +62,17 @@ export default function CreatePage() {
       const hardCap = parseUnits(f.hardCap, 6);
       if (softCap <= 0n || softCap > hardCap) throw new Error("El mínimo debe ser mayor a cero y no superar al máximo.");
 
+      const supply = parseUnits(f.supply, 18);
+      const pricePerShard = parseUnits(f.price, 6);
+      if (pricePerShard <= 0n) throw new Error("El precio por shard debe ser mayor a cero.");
+      // Mismo chequeo que IssuanceFactory: el supply tiene que cubrir el hard cap.
+      const shardsForHardCap = (hardCap * 10n ** 18n) / pricePerShard;
+      if (shardsForHardCap > supply) {
+        throw new Error(
+          `Con ese precio, el máximo necesita ${formatUnits(shardsForHardCap, 18)} shards y solo emitís ${f.supply}.`
+        );
+      }
+
       const ok = await tx.run("Lote creado", {
         address: addresses.factory!,
         abi: issuanceFactoryAbi,
@@ -71,8 +82,8 @@ export default function CreatePage() {
             name: f.name,
             symbol: f.symbol,
             asset: { assetType: f.assetType, unit: f.unit, quantity: BigInt(f.quantity), campaign: f.campaign },
-            supply: parseUnits(f.supply, 18),
-            pricePerShard: parseUnits(f.price, 6),
+            supply,
+            pricePerShard,
             softCap,
             hardCap,
             duration: BigInt(days * 86400),

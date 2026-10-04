@@ -928,6 +928,11 @@ export const offeringAbi = [
   },
   {
     "type": "error",
+    "name": "ReentrantCall",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "TransferFailed",
     "inputs": []
   },
@@ -1209,6 +1214,16 @@ export const issuanceFactoryAbi = [
   {
     "type": "error",
     "name": "IssuerNotVerified",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SupplyBelowHardCap",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TransferFailed",
     "inputs": []
   },
   {

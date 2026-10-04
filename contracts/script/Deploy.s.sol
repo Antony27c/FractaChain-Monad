@@ -16,7 +16,7 @@ contract Deploy is Script {
         address offering;
     }
 
-    function run() external returns (Deployed memory d) {
+    function run() external virtual returns (Deployed memory d) {
         uint256 pk = vm.envUint("PRIVATE_KEY");
         address paymentToken = vm.envOr("PAYMENT_TOKEN", KURU_TESTNET_USDC);
         bool openVerification = vm.envOr("OPEN_VERIFICATION", true);
