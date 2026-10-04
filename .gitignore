@@ -14,3 +14,13 @@ node_modules/
 
 .env.local
 .env*.local
+.agents/
+.claude/
+skills-lock.json
+.env
+.env.local
+.env*.local
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+node_modules/
