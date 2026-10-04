@@ -33,6 +33,7 @@ contract IssuanceFactory {
 
     error ZeroAddress();
     error IssuerNotVerified();
+    error TransferFailed();
     error InvalidSupply();
     error InvalidDuration();
 
@@ -58,7 +59,7 @@ contract IssuanceFactory {
             p.hardCap,
             block.timestamp + p.duration
         );
-        shard.transfer(address(off), p.supply);
+        if (!shard.transfer(address(off), p.supply)) revert TransferFailed();
 
         token = address(shard);
         offering = address(off);
