@@ -151,6 +151,12 @@ Implicancias:
 2. ~~Confirmar `deployProxy` con una transacción real~~ **Resuelta:** cualquier cuenta puede crear un mercado en el Router de Kuru en testnet (mercado `0x24B6...9B7f`).
 3. **Bases de los bounties de Kuru y Privy:** qué se exige para que cuenten. Probar el primer día que Privy funcione en Monad testnet.
 4. **Roles del equipo.** Contratos e integración con Kuru: Antony. Frontend: Juli.
+5. **Pendiente de UX: onboarding de la wallet embebida (Privy).** Probando el login se vio que un usuario nuevo no puede operar y la app no se lo explica bien:
+   - La wallet nace sin MON, y el primer intento de transacción falla con el mensaje técnico de Privy "Signer had insufficient balance" (Missing or invalid parameters). Hay que detectar el saldo en 0 y mostrar un aviso claro, con un camino para fondearla (faucet o botón de fondos de demo).
+   - La dirección de la wallet se ve cortada (`0xC3Ab...7B76`) y no se podía copiar. Se agregó un clic para copiar y un tooltip en `LoginButton.tsx` como parche, pero falta una pantalla o menú de cuenta con la dirección completa, botón de copiar y el saldo de MON y USDC.
+   - Para la demo, evaluar un botón "Cargar fondos de prueba" que fondee la wallet nueva con MON y mUSDC.
+   - El panel "Mercado secundario" de la página del lote todavía no está conectado: dice que el mercado de Kuru "no está conectado en esta pantalla". Falta enlazar el mercado de Kuru ya creado (`0x24B6...9B7f`) y el botón "Abrir mercado". Es importante para la demo del bounty de Kuru.
+   - El formulario "Emitir un lote" no avisa si los topes son inalcanzables para quien prueba. Por ejemplo, un mínimo de 100.000 USDC con un saldo de 50.000. Mostrar el saldo de USDC junto al formulario y advertir cuando el mínimo o el máximo superan lo que el usuario puede aportar, al menos en la demo.
 
 Resuelta: los parámetros del lote de demo (ver sección 6).
 
