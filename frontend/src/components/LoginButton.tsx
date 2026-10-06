@@ -34,7 +34,16 @@ export function LoginButton() {
 
   return (
     <div className="flex items-center gap-3">
-      {address && <span className="font-mono text-sm text-muted">{shortAddress(address)}</span>}
+      {address && (
+        <button
+          type="button"
+          title={`${address} (clic para copiar)`}
+          onClick={() => navigator.clipboard.writeText(address)}
+          className="font-mono text-sm text-muted"
+        >
+          {shortAddress(address)}
+        </button>
+      )}
       <button
         onClick={logout}
         className="btn-lcd btn-lcd-ghost px-4 py-2 text-xs transition active:scale-[0.98]"
