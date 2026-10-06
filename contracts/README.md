@@ -1,4 +1,4 @@
-# Contratos de ShardChain
+# Contratos de FractaChain
 
 Solidity + Foundry, para Monad testnet (chain ID 10143).
 
