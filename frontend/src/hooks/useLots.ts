@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useBlock, useReadContract, useReadContracts } from "wagmi";
 import { issuanceFactoryAbi, offeringAbi, shardTokenAbi } from "@/lib/abi";
 import { addresses } from "@/lib/env";
@@ -23,7 +24,7 @@ export type Lot = {
   pricePerShard: bigint;
 };
 
-const POLL = { refetchInterval: 4000 };
+const POLL = { refetchInterval: 12000 };
 
 export function useNow() {
   const { data } = useBlock({ query: POLL });
@@ -33,6 +34,7 @@ export function useNow() {
 export function useLots() {
   const now = useNow();
   const factory = addresses.factory;
+  const lastGood = useRef(new Map<string, Lot>());
 
   const issuances = useReadContract({
     address: factory,
@@ -61,16 +63,22 @@ export function useLots() {
 
   const FIELDS = 9;
   const lots: Lot[] = [];
+  let incomplete = false;
   list.forEach((issuance, id) => {
     const r = details.data?.slice(id * FIELDS, (id + 1) * FIELDS).map((x) => x.result);
-    if (!r || r.some((x) => x === undefined)) return;
+    if (!r || r.some((x) => x === undefined)) {
+      const last = lastGood.current.get(issuance.offering);
+      if (last) lots.push(last);
+      else incomplete = true;
+      return;
+    }
     const rawStatus = Number(r[3]);
     const totalRaised = r[4] as bigint;
     const hardCap = r[6] as bigint;
     const deadline = r[7] as bigint;
     const status: LotStatus =
       rawStatus === 1 ? "succeeded" : rawStatus === 2 ? "failed" : now >= deadline || totalRaised >= hardCap ? "ready" : "active";
-    lots.push({
+    const lot: Lot = {
       id,
       issuer: issuance.issuer,
       token: issuance.token,
@@ -85,12 +93,18 @@ export function useLots() {
       hardCap,
       deadline,
       pricePerShard: r[8] as bigint,
-    });
+    };
+    lastGood.current.set(issuance.offering, lot);
+    lots.push(lot);
   });
 
   return {
     lots: lots.reverse(),
-    isLoading: issuances.isLoading || (list.length > 0 && details.isLoading),
+    isLoading:
+      Boolean(factory) &&
+      !issuances.error &&
+      !details.error &&
+      (issuances.data === undefined || incomplete || (list.length > 0 && details.data === undefined)),
     error: issuances.error ?? details.error,
   };
 }

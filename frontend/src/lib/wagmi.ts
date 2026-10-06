@@ -3,7 +3,7 @@ import { mock } from "wagmi/connectors";
 import { createConfig as createPrivyConfig } from "@privy-io/wagmi";
 import { chain, rpcUrl } from "@/lib/env";
 
-const transports = { [chain.id]: http(rpcUrl) } as Record<number, ReturnType<typeof http>>;
+const transports = { [chain.id]: http(rpcUrl, { batch: true }) } as Record<number, ReturnType<typeof http>>;
 
 export const config = createPrivyConfig({
   chains: [chain],
