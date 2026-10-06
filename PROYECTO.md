@@ -1,9 +1,9 @@
-# ShardChain: documentación del proyecto
+# FractaChain: documentación del proyecto
 
-> Documento vivo para el equipo. Estado: **en build**, contratos con tests en verde y flujo completo probado en fork local.
-> Última actualización: 4 de octubre de 2026.
+> Documento vivo para el equipo. Estado: **en build**, contratos con tests en verde y flujo completo probado en **Monad testnet real** (con un USDC mock).
+> Última actualización: 6 de octubre de 2026.
 
-## 1. Qué es ShardChain
+## 1. Qué es FractaChain
 
 Un mercado onchain de activos reales argentinos (RWA) sobre **Monad**. Un productor o pyme fracciona un activo (por ejemplo, una cosecha de soja) en tokens negociables llamados **shards**. Los shards se emiten en una **licitación primaria** y después se negocian en el order book de **Kuru**, un exchange que ya existe en Monad.
 
@@ -35,7 +35,7 @@ El track pide, entre otros ejemplos, "order books totalmente onchain que no nece
 
 ## 4. Qué es Kuru y por qué lo usamos
 
-**Monad** es la blockchain. **Kuru** es una aplicación que ya existe dentro de Monad: un exchange descentralizado con un order book totalmente onchain (CLOB), combinado con liquidez tipo AMM. ShardChain **no construye su propio order book**: lista los shards en Kuru.
+**Monad** es la blockchain. **Kuru** es una aplicación que ya existe dentro de Monad: un exchange descentralizado con un order book totalmente onchain (CLOB), combinado con liquidez tipo AMM. FractaChain **no construye su propio order book**: lista los shards en Kuru.
 
 Por qué:
 - Tiene dos premios en juego (el del track y el bounty de Kuru).
@@ -91,7 +91,23 @@ Productor ──> IssuanceFactory ──crea──> ShardToken (ERC-20)
 
 **Integración con Kuru (offchain, con el SDK):** `scripts/kuru/open-market.ts` calcula las precisiones, crea el mercado y siembra el vault. El modo `--offering <addr>` lee el token, la moneda y el precio del contrato y exige `status = Succeeded` (es el que invoca el botón "Abrir mercado"); `--json` deja stdout limpio para el frontend. Probado E2E sobre un fork local de la testnet: licitación completa (contribute → finalize → claim) y mercado creado con bid ≈ 0,099 y ask 0,100. Ver `scripts/kuru/README.md`.
 
-**Qué falta probar en la testnet real:** el deploy de los contratos, y el script de Kuru con shards reales y el USDC de Kuru. Todo lo anterior se probó en tests y en forks.
+**Probado en la testnet real (6 de octubre):** deploy de los contratos, licitación completa (`contribute` hasta el hard cap, `finalize`, `claim`) y `open-market.ts --offering`, que creó el mercado en el Router de Kuru con `deployProxy` y sembró el vault. Se hizo con un `mUSDC` propio (ver sección 7).
+
+| Contrato | Dirección en Monad testnet |
+|---|---|
+| `KycRegistry` | `0xe42FF6D4d9ED6603873144D3B1C46B6317d45FC9` |
+| `IssuanceFactory` | `0xdbb769E14687DFD90f319A225b5fF8eA423Bb68F` |
+| `ShardToken` (SOJA26) | `0x3AbA80ACDc4F35666012e3bdF1c1bca56996630D` |
+| `Offering` | `0x1929ada51d21911cA3545C18a08693a483f2C308` |
+| `mUSDC` (mock, 6 decimales) | `0xBf11e27C5C26E11E4B213fBCc5d5EDBb29453d36` |
+| Mercado SOJA26/mUSDC en Kuru | `0x24B6dB71754086e87eF0d0C0F83C067b58Fb9B7f` |
+| Vault del mercado | `0xB6BDa4B1Abe3D8d0D82691BC0f3a6f9aa7536010` |
+
+Hay un primer deploy anterior (con el USDC de Kuru como moneda de pago) que quedó sin uso: el lote de ejemplo pide 40.000 USDC de soft cap y no teníamos cómo conseguirlos.
+
+Los cinco contratos están verificados en Sourcify (`exact_match`).
+
+**Qué falta probar:** repetir el flujo con el USDC oficial de testnet de Kuru y el frontend contra estas direcciones.
 
 **Frontend:** Next.js + wagmi + viem. Wallet embebida con Privy.
 
@@ -113,6 +129,8 @@ Verificado consultando Monad testnet:
 - **No parece tener un mint libre.** Una llamada de prueba a `mint(address,uint256)` desde una cuenta cualquiera revierte, y el contrato no expone `owner()`. No es una prueba concluyente: podría tener otra función de mint.
 - Las guías de la comunidad lo consiguen **cambiando MON por tUSDC en la UI de Kuru**. No encontré un faucet oficial de USDC.
 
+**Actualización (6 de octubre).** La app web de Kuru (`kuru.io`) solo muestra mainnet: usa el USDC `0x7547...b603` y no reconoce el saldo de testnet, aunque la wallet esté en Monad Testnet. Por eso no pudimos conseguir USDC de testnet por swap. Se aplicó el plan B: un `mUSDC` propio (`script/DeployMockUsdc.s.sol`, con mint libre), con el que se probó todo el flujo en testnet. Sigue pendiente averiguar con Kuru cómo conseguir su USDC oficial de testnet.
+
 Implicancias:
 - Para tener fondos de demo hay que swapear MON (que sí tiene faucet en faucet.monad.xyz) por USDC en Kuru, y el volumen disponible es limitado.
 - Para pagar la licitación y sembrar el mercado hace falta bastante USDC. Si no alcanza, el plan B es un `mUSDC` propio, que no se puede usar con el bounty de Kuru como moneda "oficial".
@@ -121,16 +139,16 @@ Implicancias:
 
 | Días | Objetivo |
 |---|---|
-| 1-2 (3-4 oct) | **Hecho:** entorno Foundry, `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory` con tests, scripts de deploy (testnet y `DeployLocal` para anvil), ABIs y guía para el frontend, script de Kuru (probado en fork, modo `--offering`), invariantes del `Offering` (128k llamadas sin violaciones) y revisión de seguridad propia con fixes. **Pendiente:** confirmar `deployProxy` con una transacción real. |
-| 3-4 | Deploy en testnet con una wallet de prueba. Probar el script de Kuru con los shards reales. Revisión de los contratos (propia ya hecha; falta externa). |
+| 1-2 (3-4 oct) | **Hecho:** entorno Foundry, `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory` con tests, scripts de deploy (testnet y `DeployLocal` para anvil), ABIs y guía para el frontend, script de Kuru (probado en fork, modo `--offering`), invariantes del `Offering` (128k llamadas sin violaciones) y revisión de seguridad propia con fixes. |
+| 3-4 | **Hecho (6 oct):** deploy en testnet con una wallet de prueba, licitación completa y script de Kuru con shards reales (con `mUSDC`). Contratos verificados en Sourcify. **Pendiente:** repetir con el USDC oficial de Kuru y revisión externa. |
 | 5-7 | Frontend: licitación (contribuir, reembolsar) y vista del mercado. |
 | 8 | Wallet embebida, pulido y flujo completo de punta a punta. |
 | 9-10 | Video de demo, README, lectura final de las bases de Kuru y envío. |
 
 ## 9. Preguntas abiertas
 
-1. **¿Alcanza el USDC de testnet de Kuru?** Probar el swap MON a USDC y estimar cuánto se consigue.
-2. **Confirmar `deployProxy` con una transacción real** en testnet. El test sobre fork indica que es permisionless (ver sección 6). Las direcciones vigentes ya están verificadas.
+1. **¿Cómo conseguimos el USDC oficial de testnet de Kuru?** El swap de `kuru.io` solo funciona en mainnet (ver sección 7). Preguntar a Kuru (Discord) y leer las bases del bounty para saber si exigen su USDC.
+2. ~~Confirmar `deployProxy` con una transacción real~~ **Resuelta:** cualquier cuenta puede crear un mercado en el Router de Kuru en testnet (mercado `0x24B6...9B7f`).
 3. **Bases de los bounties de Kuru y Privy:** qué se exige para que cuenten. Probar el primer día que Privy funcione en Monad testnet.
 4. **Roles del equipo.** Contratos e integración con Kuru: Antony. Frontend: Juli.
 
@@ -159,4 +177,4 @@ Resuelta: los parámetros del lote de demo (ver sección 6).
 
 ## 12. Origen y reglas
 
-Idea inspirada en Fractachain (github.com/Erosmart/fractachain), hecha en Stellar. ShardChain es un repo nuevo, con todo el código construido durante el hackathon.
+FractaChain se prototipó antes en otro ecosistema (Stellar/Soroban, github.com/Erosmart/fractachain), donde ganó el 1.er puesto del Track Genesis del Argentina Builder Challenge (BAF × Stellar). Para Monad Metropolis se reconstruyó desde cero: todos los contratos, scripts y el frontend de este repo se escribieron durante el hackathon. No se reutilizó código de Soroban, solo la idea y el diseño.

@@ -1,10 +1,26 @@
-# ShardChain
+# FractaChain
 
 Onchain market for Argentine real-world assets (RWA) on **Monad**. Producers fractionate an asset (a harvest, certified stock) into tradable tokens called **shards**, raise funds in a primary offering, and the shards then trade on **Kuru**'s fully onchain order book. There is no offchain matching engine.
 
 Built for the [Monad Metropolis](https://monad.xyz/developers/hackathons/metropolis) hackathon, track **Onchain Finance & Trading**.
 
-> Status: work in progress. Contracts and the Kuru integration script are written and tested locally. The frontend is in progress. Nothing is deployed to Monad testnet yet.
+> Status: work in progress. Contracts and the Kuru integration script are deployed and exercised end to end on Monad testnet (with a mock USDC, see below). The frontend is in progress.
+
+## Deployed on Monad testnet (chain ID 10143)
+
+Full flow run onchain: offering filled to the hard cap, finalized, shards claimed, then a Kuru market was created and its vault seeded.
+
+| Contract | Address |
+|---|---|
+| `KycRegistry` | `0xe42FF6D4d9ED6603873144D3B1C46B6317d45FC9` |
+| `IssuanceFactory` | `0xdbb769E14687DFD90f319A225b5fF8eA423Bb68F` |
+| `ShardToken` (SOJA26) | `0x3AbA80ACDc4F35666012e3bdF1c1bca56996630D` |
+| `Offering` | `0x1929ada51d21911cA3545C18a08693a483f2C308` |
+| Mock USDC (`mUSDC`, 6 decimals) | `0xBf11e27C5C26E11E4B213fBCc5d5EDBb29453d36` |
+| Kuru market SOJA26/mUSDC | `0x24B6dB71754086e87eF0d0C0F83C067b58Fb9B7f` |
+| Kuru vault | `0xB6BDa4B1Abe3D8d0D82691BC0f3a6f9aa7536010` |
+
+The payment token is a mock USDC we deployed, not Kuru's official testnet USDC (`0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570`). Kuru's web app only exposes mainnet, so we could not get official testnet USDC. The same flow works with the official token by setting `PAYMENT_TOKEN`.
 
 ## The problem
 
@@ -25,7 +41,7 @@ KYC applies to the primary offering. The secondary market on Kuru is open: Kuru'
 
 | Path | What it is |
 |---|---|
-| `contracts/` | Solidity + Foundry: `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory`, deploy script and tests |
+| `contracts/` | Solidity + Foundry: `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory`, deploy scripts (`Deploy`, `DeployLocal`, `DeployMockUsdc`) and tests |
 | `contracts/CONTRATOS.md` | Contract guide for the frontend (functions, states, errors) |
 | `contracts/abi/` | ABIs for the frontend |
 | `scripts/kuru/` | TypeScript script that opens the Kuru market and seeds its vault |
@@ -36,8 +52,8 @@ KYC applies to the primary offering. The secondary market on Kuru is open: Kuru'
 Requirements: [Foundry](https://book.getfoundry.sh/getting-started/installation), Node.js.
 
 ```bash
-git clone --recurse-submodules https://github.com/Antony27c/ShardChain.git
-cd ShardChain/contracts
+git clone --recurse-submodules <repo-url>
+cd <repo>/contracts
 forge test
 ```
 
@@ -54,8 +70,11 @@ Deploy to Monad testnet (use a throwaway wallet funded from the faucet), see [`c
 - 57 Foundry tests pass: KYC registry, token, offering (contribute, finalize, claim, refund, caps, deadline, revoked KYC), factory and full flows end to end.
 - Kuru: a fork test shows that any account can deploy a market for a custom token against Kuru's testnet USDC.
 - The market script was run on a local fork of Monad testnet with test tokens: the market was created, the vault was seeded and the book quoted around the target price.
+- On Monad testnet, for real: deploy of all contracts, `contribute` to the hard cap, `finalize`, `claim`, then `scripts/kuru/open-market.ts --offering` created the SOJA26/mUSDC market through Kuru's Router (`deployProxy`) and seeded the vault with 500,000 SOJA26 and 50,000 mUSDC.
 
-Not done yet: a real deployment on Monad testnet, a run with Kuru's official testnet USDC, and an external security review. The contracts have only been reviewed by the team.
+- All five deployed contracts are source-verified on Sourcify (`exact_match`, via BlockVision's Sourcify instance).
+
+Not done yet: a run with Kuru's official testnet USDC and an external security review. The contracts have only been reviewed by the team.
 
 ## Roadmap
 
@@ -65,6 +84,6 @@ Not done yet: a real deployment on Monad testnet, a run with Kuru's official tes
 - Credit against shards, priced on onchain history.
 - A permissioned wrapper to extend KYC to the secondary market.
 
-## Credits
+## Origin
 
-Inspired by [Fractachain](https://github.com/Erosmart/fractachain) (Stellar). ShardChain is a new repository with all of its code written during the hackathon.
+FractaChain was first prototyped by our team on another ecosystem, where it won 1st place in the Genesis track of the Argentina Builder Challenge (BAF x Stellar). For Monad Metropolis we rebuilt it from scratch: all contracts, scripts and frontend in this repo were written during the hackathon. No Soroban code was reused, only the idea and the design. Original repo: [Erosmart/fractachain](https://github.com/Erosmart/fractachain).
