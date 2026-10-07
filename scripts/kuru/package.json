@@ -1,7 +1,7 @@
 {
-  "name": "shardchain-kuru-scripts",
+  "name": "fractachain-kuru-scripts",
   "version": "1.0.0",
-  "description": "Kuru market scripts for ShardChain",
+  "description": "Kuru market scripts for FractaChain",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

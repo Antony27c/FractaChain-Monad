@@ -59,7 +59,7 @@ const GROUPS: { title: string; fields: Field[] }[] = [
 export default function CreatePage() {
   const [form, setForm] = useState<Form>(DEFAULTS);
   const [formError, setFormError] = useState<string | null>(null);
-  const { address, verified, openVerification } = useVerification();
+  const { address, ready, verified, openVerification } = useVerification();
   const tx = useTx();
 
   if (!contractsConfigured) {
@@ -128,7 +128,7 @@ export default function CreatePage() {
 
         {!address && <p className="mt-8 text-muted">Iniciá sesión para emitir un lote.</p>}
 
-        {address && !verified && (
+        {address && ready && !verified && (
           <div className={`${notice.warn} mt-8`}>
             <p>Tu dirección todavía no está verificada, así que no podés emitir lotes.</p>
             {openVerification && (

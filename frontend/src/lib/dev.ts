@@ -5,4 +5,4 @@ export const DEV_ACCOUNTS = [
   { address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906", label: "Inversor C (sin verificar)" },
 ] as const satisfies readonly { address: `0x${string}`; label: string }[];
 
-export const DEV_ACCOUNT_KEY = "shardchain.devAccount";
+export const DEV_ACCOUNT_KEY = "fractachain.devAccount";

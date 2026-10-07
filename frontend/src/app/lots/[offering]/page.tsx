@@ -56,7 +56,7 @@ function LotSkeleton() {
 
 export default function LotPage() {
   const { offering: offeringParam } = useParams<{ offering: string }>();
-  const { lots, isLoading } = useLots();
+  const { lots, isLoading, error } = useLots();
   const now = useNow();
   const lot = lots.find((l) => l.offering.toLowerCase() === offeringParam.toLowerCase());
   const investor = useInvestor(lot?.offering);
@@ -74,6 +74,17 @@ export default function LotPage() {
       <div className="mx-auto max-w-6xl px-4 pb-20 pt-8 md:px-6 md:pt-10">
         {back}
         <LotSkeleton />
+      </div>
+    );
+  }
+
+  if (!lot && error) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 pb-20 pt-8 md:px-6 md:pt-10">
+        {back}
+        <p role="alert" className={`${notice.bad} mt-6`}>
+          No pudimos leer el lote de la cadena. Reintentando... ({error.message.slice(0, 200)})
+        </p>
       </div>
     );
   }
@@ -208,11 +219,15 @@ export default function LotPage() {
                 <dl className="space-y-2">
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Saldo USDC</dt>
-                    <dd className="font-mono font-medium tabular-nums">{formatUsdc(investor.usdcBalance)}</dd>
+                    <dd className="font-mono font-medium tabular-nums">
+                      {investor.ready ? formatUsdc(investor.usdcBalance) : "..."}
+                    </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Tu aporte</dt>
-                    <dd className="font-mono font-medium tabular-nums">{formatUsdc(investor.contribution)}</dd>
+                    <dd className="font-mono font-medium tabular-nums">
+                      {investor.ready ? formatUsdc(investor.contribution) : "..."}
+                    </dd>
                   </div>
                   {investor.contribution > 0n && (
                     <div className="flex justify-between gap-4">
@@ -224,7 +239,7 @@ export default function LotPage() {
                   )}
                 </dl>
 
-                {!investor.verified && lot.status === "active" && (
+                {investor.ready && !investor.verified && lot.status === "active" && (
                   <div className={notice.warn}>
                     <p>Tu dirección todavía no está verificada (KYC).</p>
                     {investor.openVerification ? (

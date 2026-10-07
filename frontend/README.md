@@ -1,4 +1,4 @@
-# ShardChain: frontend
+# FractaChain: frontend
 
 Next.js + wagmi + viem sobre Monad testnet (chain ID 10143), con login de Privy.
 

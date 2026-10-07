@@ -32,7 +32,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "ShardChain",
+  title: "FractaChain",
   description:
     "Mercado onchain de activos reales argentinos sobre Monad: licitación primaria y mercado secundario en Kuru.",
 };
