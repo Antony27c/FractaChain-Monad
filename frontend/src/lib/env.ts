@@ -6,6 +6,9 @@ export const monadTestnet = defineChain({
   nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
   rpcUrls: { default: { http: ["https://testnet-rpc.monad.xyz"] } },
   blockExplorers: { default: { name: "Monad Explorer", url: "https://testnet.monadexplorer.com" } },
+  // Sin esta dirección wagmi manda cada lectura como un eth_call separado y
+  // supera el límite de requests/segundo del RPC. Con Multicall3 las agrupa en una.
+  contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11", blockCreated: 251449 } },
   testnet: true,
 });
 
