@@ -13,6 +13,7 @@ import { useInvestor } from "@/hooks/useInvestor";
 import { useTx } from "@/hooks/useTx";
 import { ProgressBar } from "@/components/ProgressBar";
 import { StatusBadge } from "@/components/StatusBadge";
+import { SecondaryMarket } from "@/components/SecondaryMarket";
 
 const SHARD_UNIT = 10n ** 18n;
 
@@ -359,15 +360,7 @@ export default function LotPage() {
             )}
           </div>
 
-          {lot.status === "succeeded" && (
-            <div className={notice.accent}>
-              <h3 className="font-semibold">Mercado secundario</h3>
-              <p className="mt-2 text-muted">
-                Con la licitación cerrada, el emisor abre el mercado {lot.symbol}/USDC en Kuru. Todavía no está
-                conectado en esta pantalla.
-              </p>
-            </div>
-          )}
+          {lot.status === "succeeded" && <SecondaryMarket lot={lot} account={investor.address} />}
         </aside>
       </div>
     </div>

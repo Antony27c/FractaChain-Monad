@@ -48,6 +48,14 @@ En modo dev, el selector de la barra superior cambia entre cuentas de anvil: el 
 
 Si cambian los contratos, regenerar los ABIs del frontend con `npm run sync-abi` (después de `forge inspect ... > contracts/abi/...`, ver `contracts/CONTRATOS.md`).
 
+## Mercado secundario (Kuru)
+
+En la página de un lote exitoso, el panel "Mercado secundario" busca el mercado de Kuru del shard y muestra bid, ask, comisiones, vault y links al explorer. La app web de Kuru solo muestra mainnet, así que el mercado de testnet se consulta onchain.
+
+- **Registro de mercados:** `src/lib/kuru.ts` (`KURU_MARKETS`, token en minúsculas a dirección del mercado). Los mercados abiertos desde la UI se guardan además en `localStorage` de ese navegador; para que los vea todo el mundo, agregarlos al registro.
+- **Abrir mercado:** si estás conectado con la wallet del emisor y el lote todavía no tiene mercado, el panel muestra "Abrir mercado". Crea el mercado en el Router de Kuru (`deployProxy`) y siembra el vault (2 aprobaciones y un depósito). El primer depósito fija el precio del vault. Necesita MON para el gas y shards y USDC en la wallet del emisor.
+- **Precisiones:** las calcula `/api/kuru/precisions` en el servidor con `@kuru-labs/kuru-sdk` (no entra al bundle del navegador).
+
 ## Variables de entorno
 
 | Variable | Qué es |
