@@ -63,11 +63,17 @@ El frontend tiene un `Dockerfile` que construye Next.js en modo `standalone` y l
 
 1. En Railway: **New Project > Deploy from GitHub repo** y elegir este repo.
 2. En el servicio, **Settings > Root Directory** = `frontend`. Railway detecta el `Dockerfile` solo.
-3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`.
+3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`. Para "Mi actividad", agregar también `ENVIO_API_TOKEN` (se lee al ejecutar, no hace falta rebuild).
 4. **Settings > Networking > Generate Domain** para obtener la URL pública.
 5. En el dashboard de Privy, agregar esa URL (`https://<app>.up.railway.app`) en **Allowed origins**; si no, el login falla.
 
 Las variables `NEXT_PUBLIC_*` se incrustan en el bundle al construir: si se cambia alguna, Railway reconstruye y redespliega. Todo lo que empieza con `NEXT_PUBLIC_` queda visible en el navegador, incluido el RPC; con un RPC privado conviene restringirlo por dominio en el proveedor, o usar el público (`https://testnet-rpc.monad.xyz`).
+
+## Mi actividad (historial onchain)
+
+La página `/actividad` (también desde el menú de cuenta) lista todas las operaciones del usuario: compras y ventas en Kuru, aportes, reclamos, reembolsos, liquidez, canjes de cosecha y USDC de prueba. La ruta `/api/activity` busca en HyperSync de Envio los `Transfer` ERC-20 del usuario sobre el USDC y los shards, los agrupa por transacción y los clasifica según los montos y la contraparte. Se lee de la cadena: no hay base de datos y funciona desde cualquier dispositivo.
+
+No se usa el RPC directo porque `eth_getLogs` está limitado a 100 bloques en el RPC público (5 en QuickNode gratis) y el evento `Trade` de Kuru no tiene campos indexados.
 
 ## Variables de entorno
 
@@ -78,5 +84,7 @@ Las variables `NEXT_PUBLIC_*` se incrustan en el bundle al construir: si se camb
 | `NEXT_PUBLIC_DEV_MODE` | `true` para saltear Privy y usar cuentas de anvil. |
 | `NEXT_PUBLIC_RPC_URL` | RPC a usar (por defecto el de la cadena elegida). |
 | `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` | Direcciones de los contratos. |
+| `ENVIO_API_TOKEN` | Solo servidor (sin `NEXT_PUBLIC_`). Token gratis de HyperSync ([app.envio.dev/api-tokens](https://envio.dev/app/api-tokens)) para la página "Mi actividad". Sin él, `/api/activity` responde que falta configurarlo. |
+| `ACTIVITY_FROM_BLOCK` | Opcional. Bloque desde el que se busca la actividad (por defecto 68.700.000, antes del deploy de los contratos). |
 | `NEXT_PUBLIC_REDEMPTION` | Dirección de `HarvestRedemption`. Sin definir, no se muestra el panel "Liquidación de la cosecha". |
 | `NEXT_PUBLIC_USDC_MINTABLE` | `false` si el USDC configurado no tiene `mint` libre. Por defecto se muestra el botón "Cargar 1.000 USDC de prueba" a quien tiene saldo 0. |
