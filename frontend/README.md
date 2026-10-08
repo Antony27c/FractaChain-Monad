@@ -78,4 +78,5 @@ Las variables `NEXT_PUBLIC_*` se incrustan en el bundle al construir: si se camb
 | `NEXT_PUBLIC_DEV_MODE` | `true` para saltear Privy y usar cuentas de anvil. |
 | `NEXT_PUBLIC_RPC_URL` | RPC a usar (por defecto el de la cadena elegida). |
 | `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` | Direcciones de los contratos. |
+| `NEXT_PUBLIC_REDEMPTION` | Dirección de `HarvestRedemption`. Sin definir, no se muestra el panel "Liquidación de la cosecha". |
 | `NEXT_PUBLIC_USDC_MINTABLE` | `false` si el USDC configurado no tiene `mint` libre. Por defecto se muestra el botón "Cargar 1.000 USDC de prueba" a quien tiene saldo 0. |

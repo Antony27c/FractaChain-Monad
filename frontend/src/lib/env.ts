@@ -32,6 +32,7 @@ export const addresses = {
   kyc: address(process.env.NEXT_PUBLIC_KYC),
   factory: address(process.env.NEXT_PUBLIC_FACTORY),
   usdc: address(process.env.NEXT_PUBLIC_USDC ?? "0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570"),
+  redemption: address(process.env.NEXT_PUBLIC_REDEMPTION),
 };
 
 // El USDC de la demo (mUSDC) tiene mint libre. Poner "false" si se usa un USDC sin mint.

@@ -15,6 +15,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import { SecondaryMarket } from "@/components/SecondaryMarket";
 import { TestFundsButton } from "@/components/TestFundsButton";
+import { HarvestRedemptionPanel } from "@/components/HarvestRedemptionPanel";
 
 const SHARD_UNIT = 10n ** 18n;
 
@@ -368,6 +369,7 @@ export default function LotPage() {
           </div>
 
           {lot.status === "succeeded" && <SecondaryMarket lot={lot} account={investor.address} />}
+          {lot.status === "succeeded" && <HarvestRedemptionPanel lot={lot} account={investor.address} />}
         </aside>
       </div>
     </div>
