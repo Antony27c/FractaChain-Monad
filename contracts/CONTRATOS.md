@@ -75,6 +75,27 @@ Si una transacción falla, el nombre del error indica por qué. Para mostrar men
 | `SupplyBelowHardCap` | El supply del lote no alcanza para vender el hard cap (al crear un lote). |
 | `TransferFailed` | Falló la transferencia del token de pago. |
 | `ReentrantCall` | No debería aparecer en uso normal: protección de reentrancia. |
+| `NotFunded` | La licitación no tiene shards suficientes para ese aporte. |
+| `InvalidParams` | Parámetros inválidos al crear la licitación (precio, topes o plazo). |
+| `InvalidSupply` / `InvalidDuration` | Supply o duración en cero (al crear un lote). |
+| `ZeroAddress` | Una dirección obligatoria es cero. |
+| `NotOwner` / `OpenVerificationDisabled` | `KycRegistry`: solo el dueño, o la verificación abierta está apagada. |
+| `InsufficientBalance` / `InsufficientAllowance` | `ShardToken`: saldo o aprobación insuficientes. |
+| `NotIssuer` / `AlreadySettled` | `HarvestRedemption`: solo el emisor liquida, y una sola vez. |
+| `NotSettled` / `ExceedsSettlement` | `HarvestRedemption`: canje antes de liquidar, o por encima de lo liquidado. |
+
+## HarvestRedemption (liquidación de la cosecha)
+
+Un solo contrato sirve a todos los lotes, incluidos los ya emitidos. Usa el mismo token de pago que la licitación.
+
+| Función | Para qué |
+|---|---|
+| `settle(token, amount, evidenceURI, evidenceHash)` | El emisor del lote (`token.issuer()`) deposita el USDC de la venta de la cosecha, una sola vez, con un link y un hash de la evidencia (por ejemplo, la liquidación del acopio). Requiere `approve` del USDC. |
+| `redeem(token, shards)` | Cualquier tenedor canjea shards por `shards × amount / totalSupply`. Los shards quedan bloqueados en el contrato. Requiere `approve` de los shards. |
+| `quote(token, shards) view` | USDC que pagaría ese canje (0 si no se liquidó). |
+| `isSettled(token) view`, `settlementOf(token) view` | Estado: monto, supply, shards canjeados, USDC pagado, fecha y evidencia. |
+
+Cada lote tiene su propia contabilidad: lo pagado por un token nunca supera lo que depositó su emisor, aunque el token mienta en sus transferencias.
 
 ## Dev local (anvil)
 
@@ -86,5 +107,5 @@ Para abrir el mercado de Kuru cuando termina la licitación: `scripts/kuru/open-
 Si cambian los contratos:
 ```bash
 cd contracts
-for c in KycRegistry ShardToken Offering IssuanceFactory; do forge inspect $c abi --json > abi/$c.json; done
+for c in KycRegistry ShardToken Offering IssuanceFactory HarvestRedemption; do forge inspect $c abi --json > abi/$c.json; done
 ```

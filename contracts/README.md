@@ -47,3 +47,14 @@ forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broad
 Variables opcionales: `PAYMENT_TOKEN` (por defecto el USDC de Kuru), `OPEN_VERIFICATION` (por defecto `true`, permite que cualquiera se verifique con `verifyMyself()`) y `CREATE_SAMPLE` (por defecto `true`).
 
 Copia `.env.example` a `.env` y completa `MONAD_TESTNET_RPC_URL` para desplegar.
+
+## Deploy de la liquidación de cosecha
+
+`HarvestRedemption` se despliega aparte y sirve a todos los lotes (también a los ya emitidos). Usa por defecto el mUSDC de la demo; `PAYMENT_TOKEN` lo cambia.
+
+```bash
+forge script script/DeployRedemption.s.sol --fork-url https://testnet-rpc.monad.xyz            # simulación
+forge script script/DeployRedemption.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast # deploy real
+```
+
+Después, poner la dirección en `NEXT_PUBLIC_REDEMPTION` del frontend.

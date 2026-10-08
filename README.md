@@ -67,7 +67,7 @@ Deploy to Monad testnet (use a throwaway wallet funded from the faucet), see [`c
 
 ## What has been tested
 
-- 57 Foundry tests pass: KYC registry, token, offering (contribute, finalize, claim, refund, caps, deadline, revoked KYC), factory and full flows end to end.
+- 95 Foundry tests pass (unit, fuzz and invariant): KYC registry, token, offering (contribute, finalize, claim, refund, caps, deadline, revoked KYC), factory, harvest redemption and full flows end to end.
 - Kuru: a fork test shows that any account can deploy a market for a custom token against Kuru's testnet USDC.
 - The market script was run on a local fork of Monad testnet with test tokens: the market was created, the vault was seeded and the book quoted around the target price.
 - On Monad testnet, for real: deploy of all contracts, `contribute` to the hard cap, `finalize`, `claim`, then `scripts/kuru/open-market.ts --offering` created the SOJA26/mUSDC market through Kuru's Router (`deployProxy`) and seeded the vault with 500,000 SOJA26 and 50,000 mUSDC.
