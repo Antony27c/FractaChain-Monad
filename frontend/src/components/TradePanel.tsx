@@ -101,7 +101,7 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
   const busy = tx.pending !== null;
 
   return (
-    <div className="mt-5 border-t border-line pt-5 text-sm">
+    <div className="text-sm">
       <div className="flex gap-2">
         {(["buy", "sell"] as const).map((s) => (
           <button

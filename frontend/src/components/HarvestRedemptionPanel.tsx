@@ -88,17 +88,13 @@ export function HarvestRedemptionPanel({ lot, account }: { lot: Lot; account?: `
   };
 
   return (
-    <div className={notice.accent}>
-      <h3 className="font-semibold">Liquidación de la cosecha</h3>
+    <div>
 
       {!settled && (
         <>
-          <p className="mt-2 text-muted">
-            Cuando el emisor vende la cosecha, deposita el USDC de la venta y cada {lot.symbol} se canjea por su parte
-            proporcional. Todavía no se liquidó.
-          </p>
+          <p className="text-sm text-muted">Todavía no se liquidó la cosecha.</p>
           {isIssuer && account && (
-            <div className="mt-4 space-y-4 border-t border-line pt-4 text-sm">
+            <div className="mt-4 space-y-4 text-sm">
               <label className="block">
                 <span className="font-medium">USDC de la venta</span>
                 <input
@@ -138,8 +134,8 @@ export function HarvestRedemptionPanel({ lot, account }: { lot: Lot; account?: `
       )}
 
       {settled && settlement && (
-        <>
-          <dl className="mt-3 space-y-2 text-sm">
+        <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+          <dl className="space-y-2 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Total liquidado</dt>
               <dd className="font-mono tabular-nums">{formatUsdc(settlement.amount)}</dd>
@@ -171,7 +167,7 @@ export function HarvestRedemptionPanel({ lot, account }: { lot: Lot; account?: `
           </dl>
 
           {account && (
-            <div className="mt-4 space-y-4 border-t border-line pt-4 text-sm">
+            <div className="space-y-4 text-sm">
               <p className="text-muted">
                 Tenés <span className="font-mono text-ink">{shardBalance !== undefined ? formatShards(shardBalance) : "..."} {lot.symbol}</span>.
               </p>
@@ -204,7 +200,7 @@ export function HarvestRedemptionPanel({ lot, account }: { lot: Lot; account?: `
               </button>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {tx.error && <p role="alert" className={`${notice.bad} mt-3`}>{tx.error}</p>}
