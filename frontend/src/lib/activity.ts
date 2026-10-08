@@ -2,6 +2,7 @@ export type ActivityKind =
   | "buy"
   | "sell"
   | "liquidity"
+  | "liquidityOut"
   | "contribute"
   | "claim"
   | "refund"
@@ -26,6 +27,7 @@ export const ACTIVITY_LABELS: Record<ActivityKind, string> = {
   buy: "Compra",
   sell: "Venta",
   liquidity: "Liquidez agregada",
+  liquidityOut: "Liquidez retirada",
   contribute: "Aporte a licitación",
   claim: "Reclamo de shards",
   refund: "Reembolso",

@@ -127,6 +127,7 @@ export async function GET(request: Request) {
       if (tx.shards > 0n && tx.usdc < 0n) kind = "buy";
       else if (tx.shards < 0n && tx.usdc > 0n) kind = withRedemption ? "redeem" : "sell";
       else if (tx.shards < 0n && tx.usdc < 0n) kind = "liquidity";
+      else if (tx.shards > 0n && tx.usdc > 0n && !withOffering) kind = "liquidityOut";
       else if (withOffering && tx.usdc < 0n && tx.shards === 0n) kind = "contribute";
       else if (withOffering && tx.shards > 0n && tx.usdc === 0n) kind = "claim";
       else if (withOffering && tx.usdc > 0n) kind = offering?.issuer === user ? "proceeds" : "refund";

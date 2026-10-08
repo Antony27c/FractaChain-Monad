@@ -12,6 +12,7 @@ const TONE: Partial<Record<ActivityKind, string>> = {
   buy: "bg-ok/10 text-ok",
   sell: "bg-bad/10 text-bad",
   liquidity: "bg-accent/10 text-accent",
+  liquidityOut: "bg-accent/10 text-accent",
   redeem: "bg-accent/10 text-accent",
 };
 
