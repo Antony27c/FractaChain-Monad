@@ -64,6 +64,9 @@ export const applySlippage = (amount: bigint, bps: number) => (amount * BigInt(1
 export const explorerUrl = (address: string) =>
   `${chain.blockExplorers?.default.url ?? "https://testnet.monadexplorer.com"}/address/${address}`;
 
+export const explorerTxUrl = (hash: string) =>
+  `${chain.blockExplorers?.default.url ?? "https://testnet.monadexplorer.com"}/tx/${hash}`;
+
 const storageKey = (token: string) => `fractachain.kuruMarket.${token.toLowerCase()}`;
 
 export const savedMarket = (token: string): `0x${string}` | undefined =>
