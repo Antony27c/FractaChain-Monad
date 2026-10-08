@@ -46,7 +46,7 @@ export default function WarrantsPage() {
   }, [notice]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <MockPageHeader
         icon={FileText}
         chip="Régimen nacional Ley 9643"

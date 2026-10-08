@@ -21,7 +21,7 @@ export default function MarketPage() {
   const [featured, ...rest] = lots;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 md:px-6">
+    <div className="mx-auto max-w-7xl px-4 md:px-6">
       <section className="grid items-end gap-10 pb-12 pt-16 md:pb-16 md:pt-20 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
         <div>
           <h1 className="reveal max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tighter md:text-5xl" style={step(0)}>

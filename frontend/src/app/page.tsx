@@ -23,7 +23,7 @@ export default function Home() {
   const { badge, lead, cta: ctaCopy } = useLanding();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-4 pb-16 pt-3 sm:space-y-16 sm:pt-4 md:px-6 lg:space-y-24">
+    <div className="mx-auto max-w-7xl space-y-10 px-4 pb-16 pt-3 sm:space-y-16 sm:pt-4 md:px-6 lg:space-y-24">
       <section className="relative mx-auto flex min-h-0 max-w-5xl flex-col items-center justify-start py-8 pb-6 text-center sm:min-h-[calc(100svh-5.75rem)] sm:justify-center sm:py-10">
         <HeroBackground />
 

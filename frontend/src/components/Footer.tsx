@@ -15,7 +15,7 @@ export function Footer() {
 
   return (
     <footer className="relative z-10 border-t border-line pb-8 pt-8 text-sm text-muted sm:pb-10 sm:pt-14">
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="mb-8 flex flex-col justify-between gap-8 sm:mb-10 md:flex-row md:items-start md:gap-12">
           <div className="max-w-sm shrink-0 space-y-4">
             <BrandMark />

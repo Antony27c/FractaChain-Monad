@@ -46,7 +46,7 @@ export default function ForwardsPage() {
     `w-full space-y-1.5 rounded-xl border p-4 text-left transition-all ${active ? activeClass : "border-line bg-ink/5 text-muted hover:border-ink/20"}`;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <MockPageHeader
         icon={Sprout}
         chip="Marco legal CCyC Art. 1131"

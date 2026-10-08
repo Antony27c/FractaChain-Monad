@@ -43,7 +43,7 @@ export default function ActivityPage() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-20 pt-10 md:px-6 md:pt-14">
+    <div className="mx-auto max-w-7xl px-4 pb-20 pt-10 md:px-6 md:pt-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold leading-[1.1] tracking-tighter md:text-4xl">Mi actividad</h1>
