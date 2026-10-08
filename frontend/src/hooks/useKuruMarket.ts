@@ -31,6 +31,7 @@ export function useKuruMarket(token: `0x${string}`) {
     loading: !checked || (Boolean(candidate) && isLoading),
     market: valid ? candidate : undefined,
     vault: valid ? vaultParams?.[0] : undefined,
+    vaultBestAsk: valid ? vaultParams?.[3] : undefined,
     bid: valid ? book?.[0] : undefined,
     ask: valid ? book?.[1] : undefined,
     info:

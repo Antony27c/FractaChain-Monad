@@ -7,6 +7,7 @@ import { shortAddress } from "@/lib/format";
 import { notice } from "@/lib/ui";
 import { OpenMarketForm } from "@/components/OpenMarketForm";
 import { TradePanel } from "@/components/TradePanel";
+import { AddLiquidityForm } from "@/components/AddLiquidityForm";
 
 const link = "font-mono underline underline-offset-2 hover:text-accent";
 
@@ -62,6 +63,15 @@ export function SecondaryMarket({ lot, account }: { lot: Lot; account?: `0x${str
             )}
           </dl>
           {kuru.info && <TradePanel lot={lot} market={kuru.info} account={account} />}
+          {kuru.info && kuru.vault && kuru.vaultBestAsk !== undefined && account && (
+            <AddLiquidityForm
+              lot={lot}
+              market={kuru.info}
+              vault={kuru.vault}
+              vaultBestAsk={kuru.vaultBestAsk}
+              account={account}
+            />
+          )}
           <p className="mt-4 text-xs text-muted">
             La app web de Kuru solo muestra mainnet: este mercado vive en Monad testnet y se opera onchain desde acá.
           </p>

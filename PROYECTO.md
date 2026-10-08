@@ -160,6 +160,7 @@ Implicancias:
 6. **Liquidez del mercado secundario.** El vault de MAIZ27 se sembró con solo 1.000 shards y 100 USDC, y una compra de 10 USDC subió el precio de 0,10 a ~0,12 (+20 %), con un precio promedio pagado de ~0,111. No es un error: es poca profundidad.
    - **Para la demo:** sembrar un mercado con más liquidez (por ejemplo 50.000 shards y 5.000 USDC) para que el precio se mueva de forma realista en el video.
    - **Para el bounty de Kuru ("estrategia de liquidez y formación inicial del mercado"):** el emisor siembra el vault con parte de los fondos recaudados y los shards no vendidos, al precio de la licitación. Para dar profundidad al libro hace falta además un market maker o un incentivo a proveedores de liquidez. Este caso sirve como evidencia de por qué hace falta.
+   - **Hecho (8 de octubre, en local): "Agregar liquidez al vault".** Cualquiera con shards y USDC deposita en el vault al precio actual (`base × vaultBestAsk`, igual que el SDK) y ve su porcentaje del vault. Probado en un fork: 2.000 MAIZ27 + 241,6 USDC triplicaron la liquidez sin mover el precio, y el impacto de una compra de 10 USDC bajó de ~11 % a ~3 %. Ojo: MAIZ27 tiene solo 5.000 shards de supply; para una demo con mucha más liquidez conviene un lote nuevo con supply grande (por ejemplo 1.000.000 shards y topes chicos, así el emisor recibe casi todo como no vendido y puede sembrar 50.000 shards).
 
 Resuelta: los parámetros del lote de demo (ver sección 6).
 

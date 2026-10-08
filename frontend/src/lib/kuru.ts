@@ -28,7 +28,14 @@ export const marketRegisteredEvent = parseAbiItem(
 
 export const kuruVaultAbi = parseAbi([
   "function deposit(uint256 baseDeposit, uint256 quoteDeposit, uint256 minQuoteConsumed, address receiver) payable returns (uint256)",
+  "function balanceOf(address account) view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
+  "function totalAssets() view returns (uint256 base, uint256 quote)",
 ]);
+
+/** USDC que acompaña a `base` shards en un vault con liquidez: base x vaultBestAsk (1e18), como el SDK de Kuru. */
+export const quoteForVaultDeposit = (base: bigint, vaultBestAsk: bigint, baseDecimals: number, quoteDecimals: number) =>
+  (base * vaultBestAsk * 10n ** BigInt(quoteDecimals)) / (10n ** BigInt(baseDecimals) * 10n ** 18n);
 
 export const kuruTradeAbi = parseAbi([
   "function placeAndExecuteMarketBuy(uint96 _quoteSize, uint256 _minAmountOut, bool _isMargin, bool _isFillOrKill) payable returns (uint256)",
