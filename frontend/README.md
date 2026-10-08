@@ -63,7 +63,7 @@ El frontend tiene un `Dockerfile` que construye Next.js en modo `standalone` y l
 
 1. En Railway: **New Project > Deploy from GitHub repo** y elegir este repo.
 2. En el servicio, **Settings > Root Directory** = `frontend`. Railway detecta el `Dockerfile` solo.
-3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`. Para "Mi actividad", agregar también `ENVIO_API_TOKEN` (se lee al ejecutar, no hace falta rebuild).
+3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC`, `NEXT_PUBLIC_REDEMPTION` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`. Para "Mi actividad", agregar también `ENVIO_API_TOKEN` (se lee al ejecutar, no hace falta rebuild).
 4. **Settings > Networking > Generate Domain** para obtener la URL pública.
 5. En el dashboard de Privy, agregar esa URL (`https://<app>.up.railway.app`) en **Allowed origins**; si no, el login falla.
 
