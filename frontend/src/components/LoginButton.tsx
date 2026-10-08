@@ -3,10 +3,7 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { useI18n } from "@/lib/i18n";
-
-function shortAddress(address: string) {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
+import { AccountMenu } from "@/components/AccountMenu";
 
 export function LoginButton() {
   const { ready, authenticated, login, logout } = usePrivy();
@@ -34,15 +31,10 @@ export function LoginButton() {
 
   return (
     <div className="flex items-center gap-3">
-      {address && (
-        <button
-          type="button"
-          title={`${address} (clic para copiar)`}
-          onClick={() => navigator.clipboard.writeText(address)}
-          className="font-mono text-sm text-muted"
-        >
-          {shortAddress(address)}
-        </button>
+      {address ? (
+        <AccountMenu address={address} />
+      ) : (
+        <span className="text-xs text-muted">Preparando tu wallet...</span>
       )}
       <button
         onClick={logout}
