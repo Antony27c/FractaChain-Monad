@@ -31,6 +31,10 @@ export const kuruVaultAbi = parseAbi([
   "function balanceOf(address account) view returns (uint256)",
   "function totalSupply() view returns (uint256)",
   "function totalAssets() view returns (uint256 base, uint256 quote)",
+  "function previewWithdraw(uint256 shares) view returns (uint256 base, uint256 quote)",
+  "function withdraw(uint256 shares, address receiver, address owner) returns (uint256 base, uint256 quote)",
+  "error InsufficientBalance()",
+  "error InsufficientAllowance()",
 ]);
 
 /** USDC que acompaña a `base` shards en un vault con liquidez: base x vaultBestAsk (1e18), como el SDK de Kuru. */

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatUnits, parseUnits } from "viem";
-import { useReadContracts } from "wagmi";
+import { useReadContract, useReadContracts } from "wagmi";
 import { erc20Abi } from "@/lib/abi";
 import { formatShards, formatUsdc } from "@/lib/format";
 import { kuruVaultAbi, minQuoteConsumed, quoteForVaultDeposit } from "@/lib/kuru";
@@ -29,6 +29,7 @@ export function AddLiquidityForm({
   const tx = useTx();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
+  const [withdrawPct, setWithdrawPct] = useState<number | null>(null);
 
   const { data } = useReadContracts({
     contracts: [
@@ -60,6 +61,26 @@ export function AddLiquidityForm({
       : false;
   const myPct = myShares && totalShares ? (Number(myShares) / Number(totalShares)) * 100 : 0;
 
+  const withdrawShares = myShares && withdrawPct ? (withdrawPct === 100 ? myShares : (myShares * BigInt(withdrawPct)) / 100n) : 0n;
+  const { data: preview } = useReadContract({
+    address: vault,
+    abi: kuruVaultAbi,
+    functionName: "previewWithdraw",
+    args: [withdrawShares],
+    query: { enabled: withdrawShares > 0n },
+  });
+
+  const withdraw = async () => {
+    if (withdrawShares === 0n) return;
+    const done = await tx.run("Liquidez retirada", {
+      address: vault,
+      abi: kuruVaultAbi,
+      functionName: "withdraw",
+      args: [withdrawShares, account, account],
+    });
+    if (done) setWithdrawPct(null);
+  };
+
   const deposit = async () => {
     if (!enough) return;
     const done = await tx.run("Liquidez agregada", [
@@ -73,7 +94,7 @@ export function AddLiquidityForm({
   return (
     <div className="mt-5 border-t border-line pt-5 text-sm">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between font-medium">
-        <span>Agregar liquidez al vault</span>
+        <span>Liquidez del vault</span>
         <span className="text-muted">{open ? "Ocultar" : "Ver"}</span>
       </button>
 
@@ -81,7 +102,7 @@ export function AddLiquidityForm({
         <div className="mt-4 space-y-4">
           <p className="text-muted">
             Depositás shards y USDC al precio actual del vault. Más liquidez significa que cada orden mueve menos el precio,
-            y los proveedores cobran parte de las comisiones.
+            y los proveedores cobran parte de las comisiones. Podés retirar tu parte cuando quieras.
           </p>
           <dl className="space-y-2">
             {assets && (
@@ -101,6 +122,39 @@ export function AddLiquidityForm({
               </div>
             )}
           </dl>
+
+          {myShares !== undefined && myShares > 0n && (
+            <div className="space-y-3 rounded-xl border border-line p-4">
+              <p className="font-medium">Retirar liquidez</p>
+              <div className="flex flex-wrap gap-2">
+                {[25, 50, 75, 100].map((pct) => (
+                  <button
+                    key={pct}
+                    onClick={() => setWithdrawPct(pct)}
+                    disabled={tx.pending !== null}
+                    className={`${button.chip} ${pct === withdrawPct ? "border-accent text-accent" : ""}`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+              {withdrawPct && preview && (
+                <p className="text-muted">
+                  Retirás el {withdrawPct}% de tu parte y recibís{" "}
+                  <span className="font-mono text-ink">{formatShards(preview[0])} {lot.symbol}</span> y{" "}
+                  <span className="font-mono text-ink">{formatUsdc(preview[1])}</span>.
+                </p>
+              )}
+              <button
+                onClick={withdraw}
+                disabled={tx.pending !== null || withdrawShares === 0n}
+                className={`${button.secondary} w-full`}
+              >
+                {tx.pending === "Liquidez retirada" ? "Procesando..." : "Retirar liquidez"}
+              </button>
+              <p className="text-xs text-muted">Una sola firma. Recibís shards y USDC según la proporción actual del vault.</p>
+            </div>
+          )}
 
           <label className="block">
             <span className="font-medium">Shards a depositar ({lot.symbol})</span>
@@ -133,7 +187,7 @@ export function AddLiquidityForm({
           )}
 
           <button onClick={deposit} disabled={tx.pending !== null || !enough} className={`${button.primary} w-full`}>
-            {tx.pending ? "Procesando..." : "Agregar liquidez"}
+            {tx.pending === "Liquidez agregada" ? "Procesando..." : "Agregar liquidez"}
           </button>
           <p className="text-xs text-muted">Son 3 firmas: dos aprobaciones y el depósito.</p>
 
