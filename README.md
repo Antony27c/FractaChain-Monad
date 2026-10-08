@@ -19,6 +19,7 @@ Full flow run onchain: offering filled to the hard cap, finalized, shards claime
 | Mock USDC (`mUSDC`, 6 decimals) | `0xBf11e27C5C26E11E4B213fBCc5d5EDBb29453d36` |
 | Kuru market SOJA26/mUSDC | `0x24B6dB71754086e87eF0d0C0F83C067b58Fb9B7f` |
 | Kuru vault | `0xB6BDa4B1Abe3D8d0D82691BC0f3a6f9aa7536010` |
+| `HarvestRedemption` (harvest settlement, all lots) | `0xeccA331e9b090463aBf9F2077AbFf2110d668d2c` |
 
 The payment token is a mock USDC we deployed, not Kuru's official testnet USDC (`0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570`). Kuru's web app only exposes mainnet, so we could not get official testnet USDC. The same flow works with the official token by setting `PAYMENT_TOKEN`.
 
