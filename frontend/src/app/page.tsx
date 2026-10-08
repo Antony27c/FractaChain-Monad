@@ -1,115 +1,81 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import Link from "next/link";
-import { LotCard, LotCardSkeleton } from "@/components/LotCard";
-import { useLots, useNow } from "@/hooks/useLots";
-import { contractsConfigured } from "@/lib/env";
-import { formatUsdc } from "@/lib/format";
-import { button, notice } from "@/lib/ui";
-import { useI18n } from "@/lib/i18n";
+import { Building2, Layers, Sparkles, TrendingUp } from "lucide-react";
+import { DynamicHeroText } from "@/components/DynamicHeroText";
+import { HeroBackground } from "@/components/HeroBackground";
+import { MoreThanRwaSection } from "@/components/MoreThanRwaSection";
+import {
+  IssuerCtaBanner,
+  LiquidityFirstBanner,
+  MervalLogosSection,
+  NetworkSection,
+  PartnersShowcase,
+  ProductsSection,
+  RegulationSection,
+  SoonSection,
+} from "@/components/LandingSections";
+import { useLanding } from "@/lib/landing";
 
-const step = (i: number) => ({ "--i": i }) as CSSProperties;
+const cta = "flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-[0.95rem] font-bold sm:w-auto";
 
 export default function Home() {
-  const { lots, isLoading, error } = useLots();
-  const now = useNow();
-  const { t } = useI18n();
-
-  const openLots = lots.filter((lot) => lot.status === "active").length;
-  const totalRaised = lots.reduce((sum, lot) => sum + lot.totalRaised, 0n);
-  const [featured, ...rest] = lots;
+  const { badge, lead, cta: ctaCopy } = useLanding();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 md:px-6">
-      <section className="grid items-end gap-10 pb-12 pt-16 md:pb-16 md:pt-20 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
-        <div>
-          <h1 className="reveal max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tighter md:text-5xl" style={step(0)}>
-            {t("home.title")}
-            <span className="hero-lcd">{t("home.titleAccent")}</span>
-          </h1>
-          <p className="reveal mt-5 max-w-[52ch] text-base leading-relaxed text-muted" style={step(1)}>
-            {t("home.lead")}
+    <div className="mx-auto max-w-6xl space-y-10 px-4 pb-16 pt-3 sm:space-y-16 sm:pt-4 md:px-6 lg:space-y-24">
+      <section className="relative mx-auto flex min-h-0 max-w-5xl flex-col items-center justify-start py-8 pb-6 text-center sm:min-h-[calc(100svh-5.75rem)] sm:justify-center sm:py-10">
+        <HeroBackground />
+
+        <div className="relative z-10 flex w-full flex-col items-center gap-4 sm:gap-5">
+          <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
+            <Sparkles className="h-4 w-4 shrink-0" />
+            <span className="text-left">{badge}</span>
+          </div>
+          <DynamicHeroText />
+          <p className="hero-lead mx-auto px-1 text-[0.95rem] leading-relaxed text-muted sm:text-[1.2rem]">
+            <span className="block">
+              {lead.before} <strong className="font-bold text-ink">{lead.strong}</strong> {lead.l1End}
+            </span>
+            <span className="block">
+              {lead.l2Pre}
+              <strong className="font-semibold text-ink">{lead.strongCap}</strong>
+              {lead.l2Post}
+            </span>
+            <span className="block">
+              {lead.l3Pre}
+              <strong className="font-semibold text-ink">{lead.strong90}</strong>
+            </span>
           </p>
-          <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={step(2)}>
-            <a href="#lotes" className={button.primary}>
-              {t("home.viewLots")}
-            </a>
-            <Link href="/create" className={button.secondary}>
-              {t("nav.create")}
+          <div className="flex w-full flex-col items-stretch justify-center gap-2.5 px-1 pt-1 sm:flex-row sm:flex-wrap sm:items-center lg:flex-nowrap">
+            <Link href="/market" className={`${cta} bg-ink text-bg`}>
+              <Layers className="h-4 w-4 shrink-0" />
+              {ctaCopy.market}
+            </Link>
+            <Link href="/stocks" className={`${cta} border border-line bg-surface text-ink`}>
+              <TrendingUp className="h-4 w-4 shrink-0" />
+              {ctaCopy.stocks}
+            </Link>
+            <Link href="/create" className={`${cta} border border-line bg-surface/60 font-semibold text-ink`}>
+              <Building2 className="h-4 w-4 shrink-0" />
+              {ctaCopy.create}
             </Link>
           </div>
         </div>
-
-        {contractsConfigured && lots.length > 0 && (
-          <dl className="reveal grid grid-cols-2 gap-6 border-t border-line pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0" style={step(3)}>
-            <div>
-              <dt className="text-sm text-muted">{t("home.openLots")}</dt>
-              <dd className="mt-1 font-mono text-3xl font-medium tabular-nums tracking-tight">{openLots}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-muted">{t("home.raised")}</dt>
-              <dd className="mt-1 font-mono text-3xl font-medium tabular-nums tracking-tight">
-                {formatUsdc(totalRaised, 0).replace(" USDC", "")}
-              </dd>
-              <dd className="font-mono text-xs text-muted">USDC</dd>
-            </div>
-          </dl>
-        )}
       </section>
 
-      {!contractsConfigured && (
-        <p className={notice.warn}>
-          Faltan las direcciones de los contratos. Completá <code>NEXT_PUBLIC_FACTORY</code>,{" "}
-          <code>NEXT_PUBLIC_KYC</code> y <code>NEXT_PUBLIC_USDC</code> en <code>.env.local</code>, o corré el deploy
-          local (ver el README del frontend).
-        </p>
-      )}
+      <MoreThanRwaSection />
 
-      {contractsConfigured && (
-        <section id="lotes" className="scroll-mt-6 pb-20">
-          <h2 className="mb-6 text-xl font-semibold tracking-tight">{t("home.lots")}</h2>
-
-          {error && (
-            <p role="alert" className={notice.bad}>
-              No se pudieron leer los lotes. ¿Está corriendo la cadena? ({error.message.slice(0, 120)})
-            </p>
-          )}
-
-          {isLoading && !error && (
-            <div className="space-y-5" aria-busy="true" aria-label="Cargando lotes">
-              <LotCardSkeleton featured />
-              <div className="grid gap-5 md:grid-cols-2">
-                <LotCardSkeleton />
-                <LotCardSkeleton />
-              </div>
-            </div>
-          )}
-
-          {!isLoading && !error && lots.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-line px-6 py-14 text-center">
-              <p className="text-lg font-medium tracking-tight">{t("home.empty")}</p>
-              <p className="mx-auto mt-2 max-w-[44ch] text-sm text-muted">{t("home.emptyHint")}</p>
-              <Link href="/create" className={`${button.primary} mt-6`}>
-                {t("nav.create")}
-              </Link>
-            </div>
-          )}
-
-          {!isLoading && featured && (
-            <div className="space-y-5">
-              <LotCard key={featured.offering} lot={featured} now={now} index={0} featured />
-              {rest.length > 0 && (
-                <div className="grid gap-5 md:grid-cols-2">
-                  {rest.map((lot, i) => (
-                    <LotCard key={lot.offering} lot={lot} now={now} index={i + 1} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      )}
+      <div className="below-fold space-y-12 md:space-y-16 lg:space-y-24">
+        <ProductsSection />
+        <IssuerCtaBanner />
+        <RegulationSection />
+        <MervalLogosSection />
+        <PartnersShowcase />
+        <NetworkSection />
+        <LiquidityFirstBanner />
+        <SoonSection />
+      </div>
     </div>
   );
 }

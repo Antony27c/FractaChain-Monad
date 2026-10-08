@@ -3,6 +3,7 @@ import { Lato, Share_Tech_Mono, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { DevTools } from "@/components/DevTools";
 import { CrystalBackdrop } from "@/components/CrystalBackdrop";
 import { ThemeProvider } from "@/lib/theme";
@@ -63,6 +64,7 @@ export default function RootLayout({
               <CrystalBackdrop />
               <Header />
               <main className="relative z-10 flex-1">{children}</main>
+              <Footer />
               <DevTools />
             </Providers>
           </I18nProvider>

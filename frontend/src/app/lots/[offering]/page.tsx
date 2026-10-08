@@ -67,7 +67,7 @@ export default function LotPage() {
   const [amount, setAmount] = useState("");
 
   const back = (
-    <Link href="/" className="text-sm text-muted transition-colors hover:text-ink">
+    <Link href="/market" className="text-sm text-muted transition-colors hover:text-ink">
       &larr; Lotes
     </Link>
   );
@@ -101,7 +101,7 @@ export default function LotPage() {
           <p className="mx-auto mt-2 max-w-[44ch] text-sm text-muted">
             Puede que la dirección esté mal escrita o que el lote sea de otra red.
           </p>
-          <Link href="/" className={`${button.primary} mt-6`}>
+          <Link href="/market" className={`${button.primary} mt-6`}>
             Ver lotes
           </Link>
         </div>

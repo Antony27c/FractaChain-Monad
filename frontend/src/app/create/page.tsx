@@ -178,7 +178,7 @@ export default function CreatePage() {
               {tx.success === "Lote creado" && (
                 <p role="status" className={notice.ok}>
                   Lote creado.{" "}
-                  <Link href="/" className="font-medium underline underline-offset-2">
+                  <Link href="/market" className="font-medium underline underline-offset-2">
                     Ver lotes
                   </Link>
                 </p>
