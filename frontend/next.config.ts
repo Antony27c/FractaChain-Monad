@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Build autocontenido (.next/standalone) para la imagen Docker de producción.
+  output: "standalone",
   allowedDevOrigins: ["127.0.0.1"],
   webpack: (config) => {
     // Privy y los conectores de wagmi importan paquetes opcionales

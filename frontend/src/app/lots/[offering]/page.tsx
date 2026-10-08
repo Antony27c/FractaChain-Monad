@@ -14,6 +14,7 @@ import { useTx } from "@/hooks/useTx";
 import { ProgressBar } from "@/components/ProgressBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import { SecondaryMarket } from "@/components/SecondaryMarket";
+import { TestFundsButton } from "@/components/TestFundsButton";
 
 const SHARD_UNIT = 10n ** 18n;
 
@@ -239,6 +240,12 @@ export default function LotPage() {
                     </div>
                   )}
                 </dl>
+
+                {tx.sponsored && (
+                  <p className="text-xs text-muted">Gas patrocinado por Privy: no necesitás MON para operar.</p>
+                )}
+
+                {investor.ready && <TestFundsButton account={investor.address} balance={investor.usdcBalance} />}
 
                 {investor.ready && !investor.verified && lot.status === "active" && (
                   <div className={notice.warn}>

@@ -34,6 +34,9 @@ export const addresses = {
   usdc: address(process.env.NEXT_PUBLIC_USDC ?? "0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570"),
 };
 
+// El USDC de la demo (mUSDC) tiene mint libre. Poner "false" si se usa un USDC sin mint.
+export const usdcMintable = process.env.NEXT_PUBLIC_USDC_MINTABLE !== "false";
+
 export const contractsConfigured = Boolean(addresses.kyc && addresses.factory && addresses.usdc);
 
 export const USDC_DECIMALS = 6;

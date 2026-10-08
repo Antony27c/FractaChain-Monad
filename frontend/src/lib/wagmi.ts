@@ -1,9 +1,13 @@
-import { createConfig as createWagmiConfig, createStorage, http, noopStorage } from "wagmi";
+import { createConfig as createWagmiConfig, createStorage, fallback, http, noopStorage } from "wagmi";
 import { mock } from "wagmi/connectors";
 import { createConfig as createPrivyConfig } from "@privy-io/wagmi";
 import { chain, rpcUrl } from "@/lib/env";
 
-const transports = { [chain.id]: http(rpcUrl, { batch: true }) } as Record<number, ReturnType<typeof http>>;
+// Sin NEXT_PUBLIC_RPC_URL se usa el RPC público de la cadena. Con un RPC propio, el público
+// queda de respaldo por si el propio falla o limita requests.
+const publicRpc = http(undefined, { batch: true });
+const transport = rpcUrl ? fallback([http(rpcUrl, { batch: true }), publicRpc]) : publicRpc;
+const transports = { [chain.id]: transport } as Record<number, typeof transport>;
 
 export const config = createPrivyConfig({
   chains: [chain],

@@ -208,6 +208,7 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
           <button onClick={trade} disabled={busy || !canTrade} className={`${button.primary} w-full`}>
             {busy ? "Procesando..." : label}
           </button>
+          {tx.sponsored && <p className="text-xs text-muted">Gas patrocinado por Privy: no necesitás MON.</p>}
           {allowance < tokenAmount && tokenAmount > 0n && (
             <p className="text-xs text-muted">Primero se pide una aprobación del token y después la orden (2 firmas).</p>
           )}

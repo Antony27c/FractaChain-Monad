@@ -43,5 +43,6 @@ export function errorMessage(error: unknown): string {
     if (/User rejected|denied/i.test(error.message)) return "Rechazaste la transacción.";
     return error.shortMessage;
   }
+  if (error instanceof Error && /User rejected|denied|rejected the request/i.test(error.message)) return "Rechazaste la transacción.";
   return error instanceof Error ? error.message : "Error desconocido.";
 }

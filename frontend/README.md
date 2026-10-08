@@ -57,6 +57,18 @@ En la página de un lote exitoso, el panel "Mercado secundario" busca el mercado
 - **Comprar y vender:** con el mercado abierto, el panel permite operar con órdenes de mercado (IOC) contra el order book de Kuru. Estima el resultado antes de firmar, aplica una tolerancia de slippage (0,5 / 1 / 3 %) como `minAmountOut` y pide la aprobación del token solo si no alcanza la actual. Los montos de compra usan las unidades de `pricePrecision` y los de venta las de `sizePrecision` del mercado (`lib/kuru.ts`).
 - **Precisiones:** las calcula `/api/kuru/precisions` en el servidor con `@kuru-labs/kuru-sdk` (no entra al bundle del navegador).
 
+## Deploy en Railway (Docker)
+
+El frontend tiene un `Dockerfile` que construye Next.js en modo `standalone` y lo sirve con `node server.js`.
+
+1. En Railway: **New Project > Deploy from GitHub repo** y elegir este repo.
+2. En el servicio, **Settings > Root Directory** = `frontend`. Railway detecta el `Dockerfile` solo.
+3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`.
+4. **Settings > Networking > Generate Domain** para obtener la URL pública.
+5. En el dashboard de Privy, agregar esa URL (`https://<app>.up.railway.app`) en **Allowed origins**; si no, el login falla.
+
+Las variables `NEXT_PUBLIC_*` se incrustan en el bundle al construir: si se cambia alguna, Railway reconstruye y redespliega. Todo lo que empieza con `NEXT_PUBLIC_` queda visible en el navegador, incluido el RPC; con un RPC privado conviene restringirlo por dominio en el proveedor, o usar el público (`https://testnet-rpc.monad.xyz`).
+
 ## Variables de entorno
 
 | Variable | Qué es |
@@ -66,3 +78,4 @@ En la página de un lote exitoso, el panel "Mercado secundario" busca el mercado
 | `NEXT_PUBLIC_DEV_MODE` | `true` para saltear Privy y usar cuentas de anvil. |
 | `NEXT_PUBLIC_RPC_URL` | RPC a usar (por defecto el de la cadena elegida). |
 | `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` | Direcciones de los contratos. |
+| `NEXT_PUBLIC_USDC_MINTABLE` | `false` si el USDC configurado no tiene `mint` libre. Por defecto se muestra el botón "Cargar 1.000 USDC de prueba" a quien tiene saldo 0. |
