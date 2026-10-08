@@ -30,6 +30,30 @@ export const kuruVaultAbi = parseAbi([
   "function deposit(uint256 baseDeposit, uint256 quoteDeposit, uint256 minQuoteConsumed, address receiver) payable returns (uint256)",
 ]);
 
+export const kuruTradeAbi = parseAbi([
+  "function placeAndExecuteMarketBuy(uint96 _quoteSize, uint256 _minAmountOut, bool _isMargin, bool _isFillOrKill) payable returns (uint256)",
+  "function placeAndExecuteMarketSell(uint96 _size, uint256 _minAmountOut, bool _isMargin, bool _isFillOrKill) payable returns (uint256)",
+  "error SlippageExceeded()",
+  "error InsufficientLiquidity()",
+  "error SizeError()",
+  "error PriceError()",
+  "error MarketStateError()",
+  "error TransferFromFailed()",
+]);
+
+export const SLIPPAGE_OPTIONS_BPS = [50, 100, 300] as const;
+
+/** Cantidad de decimales de una precisión de Kuru (1e4 -> 4). */
+export const precisionDecimals = (precision: bigint) => precision.toString().length - 1;
+
+/** Recorta un número escrito a `decimals` decimales, sin redondear. */
+export const truncateDecimals = (value: string, decimals: number) => {
+  const [int, dec = ""] = value.trim().replace(",", ".").split(".");
+  return decimals > 0 && dec ? `${int || "0"}.${dec.slice(0, decimals)}` : int || "0";
+};
+
+export const applySlippage = (amount: bigint, bps: number) => (amount * BigInt(10000 - bps)) / 10000n;
+
 export const explorerUrl = (address: string) =>
   `${chain.blockExplorers?.default.url ?? "https://testnet.monadexplorer.com"}/address/${address}`;
 

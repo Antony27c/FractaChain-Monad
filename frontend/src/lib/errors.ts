@@ -24,6 +24,12 @@ const MESSAGES: Record<string, string> = {
   InsufficientAllowance: "Falta autorizar el gasto del token (allowance).",
   NotOwner: "Solo el dueño del contrato puede hacer esto.",
   ZeroAddress: "La dirección no puede ser cero.",
+  SlippageExceeded: "El precio se movió más de lo permitido. Probá de nuevo o subí la tolerancia.",
+  InsufficientLiquidity: "No hay liquidez suficiente en el mercado para esa orden.",
+  SizeError: "El monto está fuera del tamaño mínimo o máximo que acepta el mercado.",
+  PriceError: "El precio de la orden no es válido para este mercado.",
+  MarketStateError: "El mercado no está disponible en este momento.",
+  TransferFromFailed: "Falló la transferencia del token. Revisá tu saldo y la aprobación.",
 };
 
 export function errorMessage(error: unknown): string {

@@ -6,6 +6,7 @@ import { explorerUrl, formatKuruPrice } from "@/lib/kuru";
 import { shortAddress } from "@/lib/format";
 import { notice } from "@/lib/ui";
 import { OpenMarketForm } from "@/components/OpenMarketForm";
+import { TradePanel } from "@/components/TradePanel";
 
 const link = "font-mono underline underline-offset-2 hover:text-accent";
 
@@ -60,8 +61,9 @@ export function SecondaryMarket({ lot, account }: { lot: Lot; account?: `0x${str
               </div>
             )}
           </dl>
+          {kuru.info && <TradePanel lot={lot} market={kuru.info} account={account} />}
           <p className="mt-4 text-xs text-muted">
-            La app web de Kuru solo muestra mainnet: este mercado vive en Monad testnet y se consulta onchain.
+            La app web de Kuru solo muestra mainnet: este mercado vive en Monad testnet y se opera onchain desde acá.
           </p>
         </>
       )}

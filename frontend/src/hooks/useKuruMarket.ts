@@ -33,6 +33,17 @@ export function useKuruMarket(token: `0x${string}`) {
     vault: valid ? vaultParams?.[0] : undefined,
     bid: valid ? book?.[0] : undefined,
     ask: valid ? book?.[1] : undefined,
+    info:
+      valid && candidate && params
+        ? {
+            address: candidate,
+            pricePrecision: BigInt(params[0]),
+            sizePrecision: params[1],
+            baseDecimals: Number(params[3]),
+            quote: params[4],
+            quoteDecimals: Number(params[5]),
+          }
+        : undefined,
     takerFeeBps: valid ? params?.[9] : undefined,
     makerFeeBps: valid ? params?.[10] : undefined,
     register: (market: `0x${string}`) => {
