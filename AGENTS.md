@@ -56,6 +56,7 @@ Cada paso ocurre sin MON: el gas lo paga Privy.
 | Archivo | Rol | Alcance | Respetá |
 |---|---|---|---|
 | `Header`, `ThemeToggle` (`LangToggle`), `CrystalBackdrop` | Navegación (Licitaciones `/market`, Orderbook `/orderbook`, Tokenizar `/create`), tema/idioma, fondo. | Libre | `Header` elige `DevAccountPicker` (dev) o `LoginButton`. |
+| `LotActions`, `ParticipationPanel`, `AssetSheet` | Pestañas de acciones del lote, panel de participación y ficha del activo (solo datos onchain con links al explorer). | Cuidado | La ficha no muestra datos que no salgan de la cadena. |
 | `LotCard`, `ProgressBar`, `StatusBadge` | Presentación de un lote. | Libre | Reciben el `Lot` de `useLots`; mantené sus props. |
 | `LoginButton`, `AccountMenu` | Login, dirección, saldos, exportar wallet, vincular cuenta, link a `/actividad`. | Cuidado | Con sesión pero sin dirección muestra "Preparando tu wallet...". Los hooks de Privy viven solo bajo `PrivyProvider`. |
 | `TestFundsButton` | `mint` de USDC de prueba si el saldo es 0. | Cuidado | Se oculta con `NEXT_PUBLIC_USDC_MINTABLE=false`. |

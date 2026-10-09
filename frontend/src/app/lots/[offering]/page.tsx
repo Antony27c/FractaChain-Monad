@@ -3,13 +3,14 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { formatDate, formatPricePerShard, shortAddress, timeLeft } from "@/lib/format";
+import { formatDate, formatPricePerShard, timeLeft } from "@/lib/format";
 import { button, notice, panel } from "@/lib/ui";
 import { useLots, useNow } from "@/hooks/useLots";
 import { useInvestor } from "@/hooks/useInvestor";
 import { ProgressBar } from "@/components/ProgressBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LotActions } from "@/components/LotActions";
+import { AssetSheet } from "@/components/AssetSheet";
 import { useI18n, useT } from "@/lib/i18n";
 
 const step = (i: number) => ({ "--i": i }) as CSSProperties;
@@ -134,7 +135,7 @@ export default function LotPage() {
           </dl>
 
           <div
-            className="reveal mt-12 grid gap-10 border-t border-line pt-8 xl:grid-cols-[1.4fr_1fr]"
+            className="reveal mt-12 grid gap-10 border-t border-line pt-8"
             style={step(3)}
           >
             <div>
@@ -146,23 +147,7 @@ export default function LotPage() {
                 <li>{t("Después, los shards se negocian en el order book de Kuru.", "Then the shards trade on Kuru's order book.")}</li>
               </ol>
             </div>
-            <div>
-              <h2 className="font-semibold tracking-tight">{t("Contratos", "Contracts")}</h2>
-              <dl className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between gap-4">
-                  <dt className="text-muted">{t("Emisor", "Issuer")}</dt>
-                  <dd className="font-mono">{shortAddress(lot.issuer)}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-muted">Token</dt>
-                  <dd className="font-mono">{shortAddress(lot.token)}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-muted">{t("Licitación", "Auction")}</dt>
-                  <dd className="font-mono">{shortAddress(lot.offering)}</dd>
-                </div>
-              </dl>
-            </div>
+            <AssetSheet lot={lot} />
           </div>
         </section>
 
