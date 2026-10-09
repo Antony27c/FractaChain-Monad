@@ -24,7 +24,8 @@ export function AccountMenu({ address, onLogout }: { address: `0x${string}`; onL
   const { exportWallet } = useExportWallet();
   const { wallets } = useWallets();
   const { lots } = useLots();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const tr = (es: string, en: string) => (locale === "en" ? en : es);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -103,11 +104,11 @@ export function AccountMenu({ address, onLogout }: { address: `0x${string}`; onL
             <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-line bg-bg px-3 py-2">
               <span className="font-mono text-xs">{shortAddress(address)}</span>
               <div className="flex gap-1.5">
-                <button onClick={copy} className={iconBtn} aria-label="Copiar dirección">
+                <button onClick={copy} className={iconBtn} aria-label={tr("Copiar dirección", "Copy address")}>
                   {copied ? <Check className="h-3.5 w-3.5 text-ok" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? "Copiada" : "Copiar"}
+                  {copied ? tr("Copiada", "Copied") : tr("Copiar", "Copy")}
                 </button>
-                <a href={explorerUrl(address)} target="_blank" rel="noreferrer" className={iconBtn} aria-label="Ver en el explorer">
+                <a href={explorerUrl(address)} target="_blank" rel="noreferrer" className={iconBtn} aria-label={tr("Ver en el explorer", "View in explorer")}>
                   <ExternalLink className="h-3.5 w-3.5" />
                   Explorer
                 </a>
@@ -116,7 +117,7 @@ export function AccountMenu({ address, onLogout }: { address: `0x${string}`; onL
           </div>
 
           <div className="p-5">
-            <p className="text-xs text-muted">Saldo disponible</p>
+            <p className="text-xs text-muted">{tr("Saldo disponible", "Available balance")}</p>
             <p className="mt-1 font-mono text-2xl font-semibold tabular-nums">{usdc !== undefined ? formatUsdc(usdc) : "..."}</p>
 
             <dl className="mt-4 divide-y divide-line rounded-xl border border-line px-3">
@@ -137,7 +138,7 @@ export function AccountMenu({ address, onLogout }: { address: `0x${string}`; onL
             {embedded && (
               <p className="mt-3 flex items-start gap-2 text-xs text-muted">
                 <Zap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-strong" />
-                El gas lo paga la app: no necesitás MON para operar.
+                {tr("El gas lo paga la app: no necesitás MON para operar.", "The app pays the gas: you don't need MON to operate.")}
               </p>
             )}
           </div>
@@ -145,24 +146,24 @@ export function AccountMenu({ address, onLogout }: { address: `0x${string}`; onL
           <div className="border-t border-line p-2">
             <Link href="/actividad" onClick={() => setOpen(false)} className={menuItem}>
               <History className="h-4 w-4 text-muted" />
-              Mi actividad
+              {tr("Mi actividad", "My activity")}
             </Link>
             {embedded && (
               <button onClick={() => exportWallet({ address })} className={menuItem}>
                 <KeyRound className="h-4 w-4 text-muted" />
-                Exportar wallet
+                {tr("Exportar wallet", "Export wallet")}
               </button>
             )}
             {!user?.email && (
               <button onClick={linkEmail} className={menuItem}>
                 <Mail className="h-4 w-4 text-muted" />
-                Vincular email
+                {tr("Vincular email", "Link email")}
               </button>
             )}
             {!user?.google && (
               <button onClick={linkGoogle} className={menuItem}>
                 <Mail className="h-4 w-4 text-muted" />
-                Vincular Google
+                {tr("Vincular Google", "Link Google")}
               </button>
             )}
             <button onClick={onLogout} className={`${menuItem} text-bad`}>

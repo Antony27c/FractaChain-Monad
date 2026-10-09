@@ -1,4 +1,7 @@
+"use client";
+
 import type { CSSProperties } from "react";
+import { useT } from "@/lib/i18n";
 import Link from "next/link";
 import type { Lot } from "@/hooks/useLots";
 import { formatPricePerShard, timeLeft } from "@/lib/format";
@@ -16,6 +19,7 @@ export function LotCard({
   index?: number;
   featured?: boolean;
 }) {
+  const t = useT();
   return (
     <Link
       href={`/lots/${lot.offering}`}
@@ -36,13 +40,13 @@ export function LotCard({
               <StatusBadge status={lot.status} />
             </div>
             <p className="mt-2 text-sm text-muted">
-              {lot.asset.assetType}, {lot.asset.quantity.toString()} {lot.asset.unit}, campaña {lot.asset.campaign}
+              {lot.asset.assetType}, {lot.asset.quantity.toString()} {lot.asset.unit}, {t("campaña", "season")} {lot.asset.campaign}
             </p>
           </div>
 
           <dl className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <dt className="text-muted">Precio</dt>
+              <dt className="text-muted">{t("Precio", "Price")}</dt>
               <dd className="mt-1 font-mono font-medium tabular-nums">{formatPricePerShard(lot.pricePerShard)}</dd>
             </div>
             <div>
@@ -50,8 +54,8 @@ export function LotCard({
               <dd className="mt-1 font-mono font-medium">{lot.symbol}</dd>
             </div>
             <div>
-              <dt className="text-muted">Plazo</dt>
-              <dd className="mt-1 font-mono font-medium tabular-nums">{timeLeft(lot.deadline, now)}</dd>
+              <dt className="text-muted">{t("Plazo", "Time left")}</dt>
+              <dd className="mt-1 font-mono font-medium tabular-nums">{timeLeft(lot.deadline, now, t("Finalizada", "Ended"))}</dd>
             </div>
           </dl>
         </div>

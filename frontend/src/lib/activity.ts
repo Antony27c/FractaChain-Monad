@@ -23,17 +23,17 @@ export type Activity = {
   shardDelta: string;
 };
 
-export const ACTIVITY_LABELS: Record<ActivityKind, string> = {
-  buy: "Compra",
-  sell: "Venta",
-  liquidity: "Liquidez agregada",
-  liquidityOut: "Liquidez retirada",
-  contribute: "Aporte a licitación",
-  claim: "Reclamo de shards",
-  refund: "Reembolso",
-  proceeds: "Fondos recaudados",
-  redeem: "Canje de cosecha",
-  settle: "Liquidación de cosecha",
-  mint: "USDC de prueba",
-  transfer: "Transferencia",
+export const ACTIVITY_LABELS: Record<ActivityKind, [string, string]> = {
+  buy: ["Compra", "Buy"],
+  sell: ["Venta", "Sell"],
+  liquidity: ["Liquidez agregada", "Liquidity added"],
+  liquidityOut: ["Liquidez retirada", "Liquidity withdrawn"],
+  contribute: ["Aporte a licitación", "Auction contribution"],
+  claim: ["Reclamo de shards", "Shard claim"],
+  refund: ["Reembolso", "Refund"],
+  proceeds: ["Fondos recaudados", "Proceeds raised"],
+  redeem: ["Canje de cosecha", "Harvest redemption"],
+  settle: ["Liquidación de cosecha", "Harvest settlement"],
+  mint: ["USDC de prueba", "Test USDC"],
+  transfer: ["Transferencia", "Transfer"],
 };

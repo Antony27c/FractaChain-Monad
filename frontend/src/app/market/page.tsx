@@ -7,7 +7,7 @@ import { useLots, useNow } from "@/hooks/useLots";
 import { contractsConfigured } from "@/lib/env";
 import { formatUsdc } from "@/lib/format";
 import { button, notice } from "@/lib/ui";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, useT } from "@/lib/i18n";
 
 const step = (i: number) => ({ "--i": i }) as CSSProperties;
 
@@ -15,6 +15,7 @@ export default function MarketPage() {
   const { lots, isLoading, error } = useLots();
   const now = useNow();
   const { t } = useI18n();
+  const tr = useT();
 
   const openLots = lots.filter((lot) => lot.status === "active").length;
   const totalRaised = lots.reduce((sum, lot) => sum + lot.totalRaised, 0n);
@@ -60,9 +61,9 @@ export default function MarketPage() {
 
       {!contractsConfigured && (
         <p className={notice.warn}>
-          Faltan las direcciones de los contratos. Completá <code>NEXT_PUBLIC_FACTORY</code>,{" "}
-          <code>NEXT_PUBLIC_KYC</code> y <code>NEXT_PUBLIC_USDC</code> en <code>.env.local</code>, o corré el deploy
-          local (ver el README del frontend).
+          {tr("Faltan las direcciones de los contratos. Completá", "Contract addresses are missing. Set")} <code>NEXT_PUBLIC_FACTORY</code>,{" "}
+          <code>NEXT_PUBLIC_KYC</code> {tr("y", "and")} <code>NEXT_PUBLIC_USDC</code> {tr("en", "in")} <code>.env.local</code>
+          {tr(", o corré el deploy local (ver el README del frontend).", ", or run the local deploy (see the frontend README).")}
         </p>
       )}
 
@@ -72,12 +73,12 @@ export default function MarketPage() {
 
           {error && (
             <p role="alert" className={notice.bad}>
-              No se pudieron leer los lotes. ¿Está corriendo la cadena? ({error.message.slice(0, 120)})
+              {tr("No se pudieron leer los lotes. ¿Está corriendo la cadena?", "Could not read the lots. Is the chain running?")} ({error.message.slice(0, 120)})
             </p>
           )}
 
           {isLoading && !error && (
-            <div className="space-y-5" aria-busy="true" aria-label="Cargando lotes">
+            <div className="space-y-5" aria-busy="true" aria-label={tr("Cargando lotes", "Loading lots")}>
               <LotCardSkeleton featured />
               <div className="grid gap-5 md:grid-cols-2">
                 <LotCardSkeleton />

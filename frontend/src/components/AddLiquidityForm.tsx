@@ -8,6 +8,7 @@ import { formatShards, formatUsdc } from "@/lib/format";
 import { kuruVaultAbi, minQuoteConsumed, quoteForVaultDeposit } from "@/lib/kuru";
 import { button, field, notice } from "@/lib/ui";
 import { useTx } from "@/hooks/useTx";
+import { useT } from "@/lib/i18n";
 import type { Lot } from "@/hooks/useLots";
 import type { useKuruMarket } from "@/hooks/useKuruMarket";
 
@@ -29,6 +30,8 @@ export function AddLiquidityForm({
   const tx = useTx();
   const [amount, setAmount] = useState("");
   const [withdrawPct, setWithdrawPct] = useState<number | null>(null);
+  const t = useT();
+  const L = { withdraw: t("Liquidez retirada", "Liquidity withdrawn"), deposit: t("Liquidez agregada", "Liquidity added") };
 
   const { data } = useReadContracts({
     contracts: [
@@ -71,7 +74,7 @@ export function AddLiquidityForm({
 
   const withdraw = async () => {
     if (withdrawShares === 0n) return;
-    const done = await tx.run("Liquidez retirada", {
+    const done = await tx.run(L.withdraw, {
       address: vault,
       abi: kuruVaultAbi,
       functionName: "withdraw",
@@ -82,7 +85,7 @@ export function AddLiquidityForm({
 
   const deposit = async () => {
     if (!enough) return;
-    const done = await tx.run("Liquidez agregada", [
+    const done = await tx.run(L.deposit, [
       { address: lot.token, abi: erc20Abi, functionName: "approve", args: [vault, base] },
       { address: market.quote, abi: erc20Abi, functionName: "approve", args: [vault, quote] },
       { address: vault, abi: kuruVaultAbi, functionName: "deposit", args: [base, quote, minQuoteConsumed(quote), account] },
@@ -93,7 +96,7 @@ export function AddLiquidityForm({
   const withdrawBlock =
     myShares !== undefined && myShares > 0n ? (
       <div className="space-y-3 rounded-xl border border-line p-4">
-        <p className="font-medium">Retirar liquidez</p>
+        <p className="font-medium">{t("Retirar liquidez", "Withdraw liquidity")}</p>
         <div className="flex flex-wrap gap-2">
           {[25, 50, 75, 100].map((pct) => (
             <button
@@ -108,8 +111,8 @@ export function AddLiquidityForm({
         </div>
         {withdrawPct && preview && (
           <p className="text-muted">
-            Retirás el {withdrawPct}% de tu parte y recibís{" "}
-            <span className="font-mono text-ink">{formatShards(preview[0])} {lot.symbol}</span> y{" "}
+            {t(`Retirás el ${withdrawPct}% de tu parte y recibís`, `You withdraw ${withdrawPct}% of your share and receive`)}{" "}
+            <span className="font-mono text-ink">{formatShards(preview[0])} {lot.symbol}</span> {t("y", "and")}{" "}
             <span className="font-mono text-ink">{formatUsdc(preview[1])}</span>.
           </p>
         )}
@@ -118,9 +121,9 @@ export function AddLiquidityForm({
           disabled={tx.pending !== null || withdrawShares === 0n}
           className={`${button.secondary} w-full`}
         >
-          {tx.pending === "Liquidez retirada" ? "Procesando..." : "Retirar liquidez"}
+          {tx.pending === L.withdraw ? t("Procesando...", "Processing...") : t("Retirar liquidez", "Withdraw liquidity")}
         </button>
-        <p className="text-xs text-muted">Una sola firma. Recibís shards y USDC según la proporción actual del vault.</p>
+        <p className="text-xs text-muted">{t("Una sola firma. Recibís shards y USDC según la proporción actual del vault.", "One signature. You receive shards and USDC in the vault's current ratio.")}</p>
       </div>
     ) : null;
 
@@ -130,7 +133,7 @@ export function AddLiquidityForm({
         <dl className="space-y-2">
           {assets && (
             <div className="flex justify-between gap-4">
-              <dt className="text-muted">Liquidez del vault</dt>
+              <dt className="text-muted">{t("Liquidez del vault", "Vault liquidity")}</dt>
               <dd className="text-right font-mono tabular-nums">
                 {formatShards(assets[0])} {lot.symbol}
                 <br />
@@ -139,17 +142,17 @@ export function AddLiquidityForm({
             </div>
           )}
           <div className="flex justify-between gap-4">
-            <dt className="text-muted">Tu parte del vault</dt>
+            <dt className="text-muted">{t("Tu parte del vault", "Your vault share")}</dt>
             <dd className="font-mono tabular-nums">{myPct.toLocaleString("es-AR", { maximumFractionDigits: 2 })}%</dd>
           </div>
         </dl>
-        {withdrawBlock ?? <p className="text-muted">Todavía no aportaste liquidez a este vault.</p>}
+        {withdrawBlock ?? <p className="text-muted">{t("Todavía no aportaste liquidez a este vault.", "You haven't added liquidity to this vault yet.")}</p>}
       </div>
 
       <div className="space-y-4">
-        <p className="font-medium">Agregar liquidez</p>
+        <p className="font-medium">{t("Agregar liquidez", "Add liquidity")}</p>
         <label className="block">
-          <span className="text-muted">Shards a depositar ({lot.symbol})</span>
+          <span className="text-muted">{t("Shards a depositar", "Shards to deposit")} ({lot.symbol})</span>
           <input
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -161,24 +164,24 @@ export function AddLiquidityForm({
         </label>
         {shardBalance !== undefined && (
           <button onClick={() => setAmount(formatUnits(shardBalance, market.baseDecimals))} className={button.chip}>
-            Máx. {formatShards(shardBalance)}
+            {t("Máx.", "Max")} {formatShards(shardBalance)}
           </button>
         )}
 
         {base > 0n && (
           <p className="text-muted">
-            Se depositan <span className="font-mono text-ink">{formatShards(base)} {lot.symbol}</span> y{" "}
+            {t("Se depositan", "Depositing")} <span className="font-mono text-ink">{formatShards(base)} {lot.symbol}</span> {t("y", "and")}{" "}
             <span className="font-mono text-ink">{formatUsdc(quote)}</span>.
           </p>
         )}
         {base > 0n && !enough && shardBalance !== undefined && usdcBalance !== undefined && (
-          <p className="text-bad">Tu saldo de {lot.symbol} o de USDC no alcanza.</p>
+          <p className="text-bad">{t(`Tu saldo de ${lot.symbol} o de USDC no alcanza.`, `Your ${lot.symbol} or USDC balance is not enough.`)}</p>
         )}
 
         <button onClick={deposit} disabled={tx.pending !== null || !enough} className={`${button.primary} w-full`}>
-          {tx.pending === "Liquidez agregada" ? "Procesando..." : "Agregar liquidez"}
+          {tx.pending === L.deposit ? t("Procesando...", "Processing...") : t("Agregar liquidez", "Add liquidity")}
         </button>
-        <p className="text-xs text-muted">Son 3 firmas: dos aprobaciones y el depósito.</p>
+        <p className="text-xs text-muted">{t("Son 3 firmas: dos aprobaciones y el depósito.", "3 signatures: two approvals and the deposit.")}</p>
 
         {tx.error && <p role="alert" className={notice.bad}>{tx.error}</p>}
         {tx.success && !tx.error && <p role="status" className={notice.ok}>{tx.success}</p>}

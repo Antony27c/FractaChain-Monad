@@ -8,6 +8,7 @@ import { formatShards, formatUsdc } from "@/lib/format";
 import { SLIPPAGE_OPTIONS_BPS, applySlippage, kuruTradeAbi, precisionDecimals, truncateDecimals } from "@/lib/kuru";
 import { button, field, notice } from "@/lib/ui";
 import { useTx } from "@/hooks/useTx";
+import { useT } from "@/lib/i18n";
 import type { Lot } from "@/hooks/useLots";
 import type { useKuruMarket } from "@/hooks/useKuruMarket";
 
@@ -28,6 +29,7 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
   const [side, setSide] = useState<Side>("buy");
   const [amount, setAmount] = useState("");
   const [slippage, setSlippage] = useState<number>(100);
+  const t = useT();
 
   const buy = side === "buy";
   const inDecimals = buy ? market.quoteDecimals : market.baseDecimals;
@@ -94,10 +96,10 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
       functionName: buy ? "placeAndExecuteMarketBuy" : "placeAndExecuteMarketSell",
       args: [units, minOut, false, false],
     });
-    if (await tx.run(buy ? "Compra realizada" : "Venta realizada", requests)) setAmount("");
+    if (await tx.run(buy ? t("Compra realizada", "Purchase completed") : t("Venta realizada", "Sale completed"), requests)) setAmount("");
   };
 
-  const label = buy ? "Comprar" : "Vender";
+  const label = buy ? t("Comprar", "Buy") : t("Vender", "Sell");
   const busy = tx.pending !== null;
 
   return (
@@ -113,28 +115,28 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
             disabled={busy}
             className={`${s === side ? button.primary : button.secondary} flex-1`}
           >
-            {s === "buy" ? "Comprar" : "Vender"}
+            {s === "buy" ? t("Comprar", "Buy") : t("Vender", "Sell")}
           </button>
         ))}
       </div>
 
-      {!account && <p className="mt-4 text-muted">Iniciá sesión para operar.</p>}
+      {!account && <p className="mt-4 text-muted">{t("Iniciá sesión para operar.", "Log in to trade.")}</p>}
 
       {account && (
         <div className="mt-4 space-y-4">
           <dl className="space-y-2">
             <div className="flex justify-between gap-4">
-              <dt className="text-muted">Tu saldo USDC</dt>
+              <dt className="text-muted">{t("Tu saldo USDC", "Your USDC balance")}</dt>
               <dd className="font-mono tabular-nums">{usdcBalance !== undefined ? formatUsdc(usdcBalance) : "..."}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted">Tus {lot.symbol}</dt>
+              <dt className="text-muted">{t("Tus", "Your")} {lot.symbol}</dt>
               <dd className="font-mono tabular-nums">{shardBalance !== undefined ? formatShards(shardBalance) : "..."}</dd>
             </div>
           </dl>
 
           <label className="block">
-            <span className="font-medium">{buy ? "Monto a gastar (USDC)" : `Cantidad a vender (${lot.symbol})`}</span>
+            <span className="font-medium">{buy ? t("Monto a gastar (USDC)", "Amount to spend (USDC)") : t(`Cantidad a vender (${lot.symbol})`, `Amount to sell (${lot.symbol})`)}</span>
             <input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -156,12 +158,12 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
               onClick={() => balanceIn !== undefined && setAmount(truncateDecimals(formatUnits(balanceIn, inDecimals), precDecimals))}
               className={button.chip}
             >
-              Máx.
+              {t("Máx.", "Max")}
             </button>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-muted">Tolerancia</span>
+            <span className="text-muted">{t("Tolerancia", "Slippage")}</span>
             {SLIPPAGE_OPTIONS_BPS.map((bps) => (
               <button
                 key={bps}
@@ -178,39 +180,39 @@ export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketI
               {out !== undefined ? (
                 <>
                   <p>
-                    Recibirás aprox.{" "}
+                    {t("Recibirás aprox.", "You'll receive approx.")}{" "}
                     <span className="font-mono font-medium tabular-nums text-ink">
                       {buy ? `${formatShards(out, 4)} ${lot.symbol}` : formatUsdc(out, 4)}
                     </span>
                   </p>
                   <p>
-                    Mínimo garantizado:{" "}
+                    {t("Mínimo garantizado:", "Guaranteed minimum:")}{" "}
                     <span className="font-mono tabular-nums">
                       {buy ? `${formatShards(minOut!, 4)} ${lot.symbol}` : formatUsdc(minOut!, 4)}
                     </span>
                   </p>
                   {effectivePrice !== undefined && (
                     <p>
-                      Precio efectivo:{" "}
+                      {t("Precio efectivo:", "Effective price:")}{" "}
                       <span className="font-mono tabular-nums">{effectivePrice.toLocaleString("es-AR", { maximumFractionDigits: 5 })} USDC</span>
                     </p>
                   )}
                 </>
               ) : estimate.error ? (
-                <p className="text-bad">No se pudo estimar la orden: el monto está fuera de lo que acepta el mercado.</p>
+                <p className="text-bad">{t("No se pudo estimar la orden: el monto está fuera de lo que acepta el mercado.", "Could not quote the order: the amount is outside what the market accepts.")}</p>
               ) : (
-                <p>Calculando...</p>
+                <p>{t("Calculando...", "Calculating...")}</p>
               )}
             </div>
           )}
-          {insufficient && <p className="text-bad">Tu saldo no alcanza para esa operación.</p>}
+          {insufficient && <p className="text-bad">{t("Tu saldo no alcanza para esa operación.", "Your balance is not enough for that trade.")}</p>}
 
           <button onClick={trade} disabled={busy || !canTrade} className={`${button.primary} w-full`}>
-            {busy ? "Procesando..." : label}
+            {busy ? t("Procesando...", "Processing...") : label}
           </button>
-          {tx.sponsored && <p className="text-xs text-muted">Gas patrocinado por Privy: no necesitás MON.</p>}
+          {tx.sponsored && <p className="text-xs text-muted">{t("Gas patrocinado por Privy: no necesitás MON.", "Gas sponsored by Privy: no MON needed.")}</p>}
           {allowance < tokenAmount && tokenAmount > 0n && (
-            <p className="text-xs text-muted">Primero se pide una aprobación del token y después la orden (2 firmas).</p>
+            <p className="text-xs text-muted">{t("Primero se pide una aprobación del token y después la orden (2 firmas).", "First a token approval, then the order (2 signatures).")}</p>
           )}
 
           {tx.error && (

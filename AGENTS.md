@@ -81,7 +81,7 @@ Cada paso ocurre sin MON: el gas lo paga Privy.
 | `lib/format.ts` | Formato de USDC, shards, precio, fechas (es-AR). | Libre | Usa decimales de `lib/env.ts`. |
 | `lib/ui.ts` | Clases `button`, `field`, `panel`, `notice`. | Libre | Reutilizalas en vez de repetir clases. |
 | `lib/activity.ts` | Tipos y etiquetas de la actividad. | Cuidado | Un tipo nuevo se suma aquí, en la ruta y en el color de `actividad/page.tsx`. |
-| `lib/i18n.tsx`, `lib/theme.tsx` | Idioma (`sc_lang`) y tema (`sc_theme`). | Cuidado | Hoy solo header y home usan `useI18n`. |
+| `lib/i18n.tsx`, `lib/theme.tsx` | Idioma (`sc_lang`) y tema (`sc_theme`). | Cuidado | Toda la UI es bilingüe. Strings de un componente: `const t = useT(); t("español", "english")`. Strings compartidos: claves de `useI18n`. Textos de la landing: `lib/landing.ts`. Fuera de React (`lib/errors.ts`): `currentLocale()`. |
 | `lib/dev.ts`, `lib/dev-context.tsx` | Cuentas de anvil. | Libre | Solo modo dev. |
 
 ### Configuración
@@ -99,7 +99,7 @@ Cada paso ocurre sin MON: el gas lo paga Privy.
 |---|---|---|
 | Rediseñar estilos, tipografía, espaciados, animaciones | Libre | Tocá `globals.css`, `lib/ui.ts` y clases Tailwind. Definí cada color en claro y en `html.dark`. Probá los dos temas. |
 | Cambiar textos y copy | Libre | La UI está en español. Para un string compartido seguí el patrón de `useI18n` con las dos lenguas. |
-| Traducir una pantalla al inglés | Libre | Pasá sus strings a `lib/i18n.tsx` (`es` y `en`) y usá `t("clave")`. |
+| Texto nuevo en la UI | Libre | Siempre en los dos idiomas: `useT()` con `t("español", "english")`. Un string sin traducir queda en español al cambiar a inglés. |
 | Reordenar o rediseñar páginas y tarjetas | Libre | Mantené las props y los hooks que cada componente consume. |
 | Página nueva | Cuidado | Carpeta en `src/app/<ruta>/page.tsx`, con `"use client"` si lee datos. Sumá el link en `Header`. |
 | Componente nuevo de solo lectura | Cuidado | Leé con `useReadContracts` (agrupa por Multicall3); usá `ABI` de `lib/abi.ts`. |

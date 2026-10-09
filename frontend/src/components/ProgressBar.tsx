@@ -1,4 +1,7 @@
+"use client";
+
 import type { CSSProperties } from "react";
+import { useT } from "@/lib/i18n";
 import { formatUsdc } from "@/lib/format";
 
 export function ProgressBar({
@@ -12,6 +15,7 @@ export function ProgressBar({
   hardCap: bigint;
   index?: number;
 }) {
+  const t = useT();
   const pct = (value: bigint) => (hardCap === 0n ? 0 : Math.min(100, Number((value * 10000n) / hardCap) / 100));
   const raisedPct = pct(raised);
   const reached = raised >= softCap;
@@ -28,7 +32,7 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(raisedPct)}
-        aria-label="Avance de la licitación respecto del máximo"
+        aria-label={t("Avance de la licitación respecto del máximo", "Auction progress toward the maximum")}
         className="relative mt-3 h-3 border-b border-line"
       >
         <div
@@ -40,10 +44,10 @@ export function ProgressBar({
 
       <div className="mt-2 flex justify-between gap-3 text-xs text-muted">
         <span className={reached ? "font-medium text-ok" : undefined}>
-          Mínimo {formatUsdc(softCap, 0)}
-          {reached ? ", alcanzado" : ""}
+          {t("Mínimo", "Minimum")} {formatUsdc(softCap, 0)}
+          {reached ? t(", alcanzado", ", reached") : ""}
         </span>
-        <span>Máximo {formatUsdc(hardCap, 0)}</span>
+        <span>{t("Máximo", "Maximum")} {formatUsdc(hardCap, 0)}</span>
       </div>
     </div>
   );

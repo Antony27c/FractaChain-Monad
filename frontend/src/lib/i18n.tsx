@@ -63,6 +63,14 @@ const I18nContext = createContext<I18nCtx>({
 
 export const useI18n = () => useContext(I18nContext);
 
+export const currentLocale = (): Locale =>
+  typeof document !== "undefined" && document.documentElement.lang === "en" ? "en" : "es";
+
+export function useT() {
+  const { locale } = useI18n();
+  return useCallback((es: string, en: string) => (locale === "en" ? en : es), [locale]);
+}
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState<Locale>("es");
 
@@ -71,13 +79,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     if (saved === "en" || saved === "es") setLocale(saved);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   const t = useCallback((key: MessageKey) => dictionaries[locale][key], [locale]);
 
   const toggleLocale = useCallback(() => {
     const next: Locale = locale === "es" ? "en" : "es";
     setLocale(next);
     localStorage.setItem("sc_lang", next);
-    document.documentElement.lang = next;
   }, [locale]);
 
   const value = useMemo(() => ({ locale, t, toggleLocale }), [locale, t, toggleLocale]);
