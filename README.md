@@ -1,89 +1,214 @@
 # FractaChain
 
-Onchain market for Argentine real-world assets (RWA) on **Monad**. Producers fractionate an asset (a harvest, certified stock) into tradable tokens called **shards**, raise funds in a primary offering, and the shards then trade on **Kuru**'s fully onchain order book. There is no offchain matching engine.
+**Argentine harvests, tradable onchain.** FractaChain lets a farmer or agri SME split a harvest lot into tokens called **shards**, raise funds in a primary offering, list the shards on **Kuru**'s fully onchain order book on **Monad**, and pay holders back in USDC when the crop is sold.
 
-Built for the [Monad Metropolis](https://monad.xyz/developers/hackathons/metropolis) hackathon, track **Onchain Finance & Trading**.
+- **Live app:** https://fractachain-monad.up.railway.app (Monad testnet)
+- **Demo video:** _coming soon_
+- **Hackathon:** [Monad Metropolis](https://monad.xyz/developers/hackathons/metropolis), track **Onchain Finance & Trading**. Bounties: **Kuru** (Bring New Assets and Markets to Kuru) and **Privy**.
 
-> Status: work in progress. Contracts and the Kuru integration script are deployed and exercised end to end on Monad testnet (with a mock USDC, see below). The frontend is in progress.
+## The problem
+
+Argentine farmers invested about US$ 13.8 billion in the 2024/25 season, and 70 % of it came from third parties, mostly through commercial credit from grain elevators, input suppliers and traders (Bolsa de Comercio de Rosario). Bank and capital-market financing is slow and expensive, and there is almost no secondary market: an investor who funds a harvest is locked in until it is sold.
+
+## What FractaChain does
+
+A full lifecycle for a new asset class, not just a trading screen:
+
+| Step | What happens | Contract |
+|---|---|---|
+| 1. Issue | A KYC-verified issuer describes the lot (crop, tons, season) and sets supply, price, soft cap, hard cap and deadline. | `IssuanceFactory`, `ShardToken` |
+| 2. Raise | Verified investors contribute USDC at a fixed price. Below the soft cap, everyone gets refunded automatically. | `KycRegistry`, `Offering` |
+| 3. Open the market | The issuer creates the shard/USDC market on Kuru and seeds its vault with unsold shards and part of the proceeds, at the offering price. | Kuru `Router.deployProxy` |
+| 4. Trade and provide liquidity | Anyone buys and sells against Kuru's order book, or deposits shards and USDC into the vault to earn fees. | Kuru market and vault |
+| 5. Settle and redeem | When the crop is sold, the issuer deposits the USDC with a link and hash of the evidence. Each holder redeems shards pro rata. | `HarvestRedemption` |
+
+```mermaid
+flowchart LR
+    I(["Issuer"]) -->|creates lot| O["Offering<br/><small>fixed price, caps, deadline</small>"]
+    V(["Investors"]) ==>|USDC| O
+    O ==>|funds the season| I
+    O -->|shards| K["Kuru order book<br/><small>+ vault liquidity</small>"]
+    K <-->|buy / sell| V
+    I ==>|"sale proceeds + evidence"| H["HarvestRedemption"]
+    V -->|redeem shards| H
+    H ==>|USDC pro rata| V
+```
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Browser["Browser (Next.js app)"]
+        UI["Pages: lots, issue lot, lot detail, activity"]
+        TX["useTx hook<br/><small>Privy embedded wallet + gas sponsorship<br/>or external wallet</small>"]
+        RD["wagmi + viem reads<br/><small>batched through Multicall3</small>"]
+    end
+
+    subgraph Server["Next.js server routes"]
+        ACT["/api/activity<br/><small>Envio HyperSync</small>"]
+        PREC["/api/kuru/precisions<br/><small>Kuru SDK</small>"]
+    end
+
+    subgraph Monad["Monad testnet"]
+        KYC["KycRegistry"]
+        FAC["IssuanceFactory"]
+        OFF["Offering (one per lot)"]
+        SHA["ShardToken (one per lot)"]
+        RED["HarvestRedemption"]
+        KR["Kuru Router, markets and vaults"]
+    end
+
+    UI --> TX --> Monad
+    UI --> RD --> Monad
+    UI --> ACT --> Monad
+    UI --> PREC
+    FAC -->|deploys| OFF
+    FAC -->|deploys| SHA
+    OFF -->|checks| KYC
+```
+
+- **No backend database.** All state is read from the chain. The two server routes only exist to keep an API token (HyperSync) and a heavy SDK (Kuru) out of the browser bundle.
+- **Contracts** (`contracts/src`): `KycRegistry` (verified addresses), `IssuanceFactory` (creates a `ShardToken` and its `Offering` per lot and enforces that supply covers the hard cap), `Offering` (fixed-price raise with soft cap, hard cap, deadline, claim and refund, reentrancy-guarded), `ShardToken` (fixed-supply ERC-20 with asset metadata) and `HarvestRedemption` (one-time settlement per lot and pro-rata redemption).
+- **Kuru** is used as-is: markets are deployed through Kuru's Router (V1 `deployProxy`) and traded through Kuru's market contracts. FractaChain does not run its own order book.
+- **Mockups:** the Merval, Forwards and Warrants pages are product simulators and do not send transactions. The live flow is the lots flow described above.
+
+## Why Monad
+
+- **An onchain order book needs a fast, cheap chain.** Kuru runs a fully onchain CLOB on Monad, so every order, fill and cancellation is a transaction. Monad's throughput and low fees make that viable, and it is why FractaChain lists on Kuru instead of building an offchain matching engine.
+- **Sponsored gas stays cheap.** The app pays gas for every user action (KYC, contribute, trade, redeem). Low fees keep sponsorship sustainable for small investors.
+- **EVM compatibility.** Standard Solidity, Foundry, viem and wagmi, and Privy's EVM embedded wallets work out of the box.
+- **Fast finality for a trading UX.** Quotes, fills and balance updates show up within seconds in the app.
+
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| Smart contracts | Solidity 0.8, Foundry (forge, anvil), forge-std |
+| Chain | Monad testnet (chain ID 10143), Multicall3 |
+| Exchange | Kuru Router, markets and vaults; `@kuru-labs/kuru-sdk` |
+| Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4, lucide-react |
+| Web3 | wagmi, viem, TanStack Query, ethers 5 (Kuru SDK and scripts) |
+| Wallets | Privy (`@privy-io/react-auth`, `@privy-io/wagmi`): embedded wallets, gas sponsorship, export, account linking |
+| Data | Envio HyperSync (activity history) |
+| Deploy | Docker on Railway; contracts verified on Sourcify |
+
+## Kuru integration
+
+- **Market creation from the app.** The issuer clicks "Open market": the app deploys a shard/USDC market through Kuru's Router (`deployProxy`) and seeds the vault in the same flow. Market precisions come from `@kuru-labs/kuru-sdk`, computed server-side.
+- **Trading.** Market buy and sell orders (`placeAndExecuteMarketBuy/Sell`) with a quote before signing, slippage tolerance (0.5 / 1 / 3 %) enforced as `minAmountOut`, and token approval only when needed.
+- **Liquidity provision.** Anyone can deposit shards and USDC into the market's vault at the current price and withdraw their share later. In a testnet fork, adding 2,000 shards and 241.6 USDC cut the price impact of a 10 USDC buy from ~11 % to ~3 %.
+- **Initial market formation.** The vault is seeded at the primary-offering price, so trading opens anchored to what investors paid. The plan adds a per-lot liquidity reserve and a designated market maker (see the [legal and operational plan](PLAN_LEGAL_OPERATIVO.md#8-liquidez-y-formación-inicial-del-mercado)).
+- **Activity history.** `/actividad` rebuilds every trade, contribution, claim, liquidity move and redemption from chain data through Envio HyperSync, because Kuru's `Trade` event has no indexed fields.
+
+## Privy integration (beyond login)
+
+| Feature | How it is used |
+|---|---|
+| Embedded wallets | Created automatically on email or Google login. A farmer never installs a wallet or writes down a seed phrase. |
+| Gas sponsorship | Every transaction (KYC, test funds, contribute, claim, trade, liquidity, settle, redeem) is sent with `sponsor: true`. New users operate with **0 MON**. If sponsorship fails, the app falls back to a normal transaction. |
+| Wallet export | "Export wallet" in the account menu gives the user their private key: real self-custody. |
+| Account linking | Users can link email and Google to the same account. |
+| External wallets | Users who already have a wallet can connect it; the app signs with it the same way. |
+
+All writes go through a single hook, `frontend/src/hooks/useTx.ts`, which picks the Privy embedded wallet with sponsorship or the connected external wallet.
+
+## Legal and operational plan
+
+A shard offered to the public in exchange for a share of a harvest's sale proceeds is a security (*valor negociable*) under Argentina's Capital Markets Law 26,831. Instead of avoiding the regulator, FractaChain plans to use the regime Argentina's securities regulator (CNV) built for this:
+
+- **Structure:** a financial trust (*fideicomiso financiero*) with public offering, whose participation certificates are represented as tokens under CNV General Resolutions 1069/2025, 1081/2025, 1087/2025 and 1150/2026. The sandbox runs until 31 December 2027. A tokenized farmland trust was already approved under this regime in 2025.
+- **Collateral:** grain deposited with a registered warehouse, backed by electronic deposit certificates and warrants (Law 9643, Decree 640/2024).
+- **Compliance:** VASP (PSAV) registration with the CNV (Law 27,739, RG 1058/2025), KYC/AML, and a permissioned wrapper to extend KYC to the secondary market.
+
+Full plan, in Spanish, with sources, risks, operating cycle and open legal questions: [`PLAN_LEGAL_OPERATIVO.md`](PLAN_LEGAL_OPERATIVO.md).
 
 ## Deployed on Monad testnet (chain ID 10143)
-
-Full flow run onchain: offering filled to the hard cap, finalized, shards claimed, then a Kuru market was created and its vault seeded.
 
 | Contract | Address |
 |---|---|
 | `KycRegistry` | `0xe42FF6D4d9ED6603873144D3B1C46B6317d45FC9` |
 | `IssuanceFactory` | `0xdbb769E14687DFD90f319A225b5fF8eA423Bb68F` |
-| `ShardToken` (SOJA26) | `0x3AbA80ACDc4F35666012e3bdF1c1bca56996630D` |
-| `Offering` | `0x1929ada51d21911cA3545C18a08693a483f2C308` |
-| Mock USDC (`mUSDC`, 6 decimals) | `0xBf11e27C5C26E11E4B213fBCc5d5EDBb29453d36` |
-| Kuru market SOJA26/mUSDC | `0x24B6dB71754086e87eF0d0C0F83C067b58Fb9B7f` |
-| Kuru vault | `0xB6BDa4B1Abe3D8d0D82691BC0f3a6f9aa7536010` |
-| `HarvestRedemption` (harvest settlement, all lots) | `0xeccA331e9b090463aBf9F2077AbFf2110d668d2c` |
+| `HarvestRedemption` | `0xeccA331e9b090463aBf9F2077AbFf2110d668d2c` |
+| Mock USDC (`mUSDC`, 6 decimals, open mint) | `0xBf11e27C5C26E11E4B213fBCc5d5EDBb29453d36` |
+| Kuru Router | `0x7EFbE105Ca7415dE98F96622173458ac1c054630` |
 
-The payment token is a mock USDC we deployed, not Kuru's official testnet USDC (`0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570`). Kuru's web app only exposes mainnet, so we could not get official testnet USDC. The same flow works with the official token by setting `PAYMENT_TOKEN`.
+| Lot | Shard token | Kuru market |
+|---|---|---|
+| SOJA26 | `0x3AbA80ACDc4F35666012e3bdF1c1bca56996630D` | `0x24B6dB71754086e87eF0d0C0F83C067b58Fb9B7f` |
+| MAIZ27 | `0x40a7e67e5b147264460980fb226e320e2434a074` | `0x02633Ff7Dc67F934131804F289FfEb941ac2aaF6` |
 
-## The problem
+The payment token is a mock USDC we deployed. Kuru's web app only exposes mainnet, so we could not obtain Kuru's official testnet USDC (`0x3bA3d39AFcf8bb994f7964B3e0171Ea2Ba361570`). The contracts work with any ERC-20 payment token.
 
-Argentine producers and SMEs need liquidity against their harvest, but the traditional route (bank credit, warrants, central depositories) is slow, expensive and has almost no secondary market. Investors have no easy access to yield backed by real assets.
+## What has been tested
 
-## How it works
+- **Contracts:** 95+ Foundry tests (unit, fuzz and invariant) across the KYC registry, token, offering, factory and harvest redemption, plus end-to-end flows and a security suite with malicious tokens. The offering invariants held over 128k calls.
+- **Kuru, on a fork:** any account can deploy a market for a custom token; trade units validated (a 1 USDC buy returned 9.92 MAIZ27, matching the quote; an impossible `minAmountOut` reverted with `SlippageExceeded`).
+- **Monad testnet, for real:** offering filled to the hard cap, finalized and claimed; Kuru markets created and seeded from the app; buys and sells from a Privy embedded wallet with 0 MON.
+- **Verification:** the deployed contracts are source-verified on Sourcify (`exact_match`).
 
-1. **Issue.** A verified issuer creates a lot through `IssuanceFactory`. It deploys a `ShardToken` (fixed supply, asset metadata) and an `Offering` that holds the whole supply.
-2. **Raise.** KYC-verified investors contribute USDC at a fixed price. The offering has a soft cap, a hard cap and a deadline.
-3. **Settle.** After the deadline (or once the hard cap is hit), anyone calls `finalize()`.
-   - Soft cap reached: the USDC goes to the issuer and each investor calls `claim()` to receive their shards.
-   - Soft cap missed: each investor calls `refund()` to get their USDC back.
-4. **Trade.** `scripts/kuru/open-market.ts` creates the shard/USDC market on Kuru and seeds its vault, so shards trade on an onchain order book.
-
-KYC applies to the primary offering. The secondary market on Kuru is open: Kuru's contracts hold the tokens, so a token-level allowlist would not identify end users.
+Not done yet: an external security audit and a run with Kuru's official testnet USDC.
 
 ## Repository layout
 
 | Path | What it is |
 |---|---|
-| `contracts/` | Solidity + Foundry: `KycRegistry`, `ShardToken`, `Offering`, `IssuanceFactory`, deploy scripts (`Deploy`, `DeployLocal`, `DeployMockUsdc`) and tests |
-| `contracts/CONTRATOS.md` | Contract guide for the frontend (functions, states, errors) |
-| `contracts/abi/` | ABIs for the frontend |
-| `scripts/kuru/` | TypeScript script that opens the Kuru market and seeds its vault |
-| `PROYECTO.md` | Project documentation (in Spanish): decisions, plan, open questions |
+| `contracts/` | Solidity + Foundry: contracts, deploy scripts and tests. Guide: [`contracts/CONTRATOS.md`](contracts/CONTRATOS.md). |
+| `frontend/` | Next.js + wagmi + viem + Privy. Setup and env vars: [`frontend/README.md`](frontend/README.md). |
+| `scripts/kuru/` | CLI script that opens a Kuru market and seeds its vault. |
+| `PLAN_LEGAL_OPERATIVO.md` | Legal and operational plan (Spanish). |
+| `PROYECTO.md` | Project log: decisions, status and open questions (Spanish). |
 
 ## Quick start
 
-Requirements: [Foundry](https://book.getfoundry.sh/getting-started/installation), Node.js.
+Requirements: [Foundry](https://book.getfoundry.sh/getting-started/installation) and Node.js.
 
 ```bash
-git clone --recurse-submodules <repo-url>
-cd <repo>/contracts
+git clone --recurse-submodules https://github.com/Antony27c/FractaChain-Monad.git
+cd FractaChain-Monad/contracts
 forge test
 ```
 
-Run the test that opens a market on Kuru against a fork of Monad testnet:
+Frontend against Monad testnet (needs a Privy App ID in `frontend/.env.local`, see `frontend/.env.example`):
 
 ```bash
-forge test --fork-url https://testnet-rpc.monad.xyz
+cd frontend
+npm install
+npm run dev
 ```
 
-Deploy to Monad testnet (use a throwaway wallet funded from the faucet), see [`contracts/README.md`](contracts/README.md). Open the Kuru market, see [`scripts/kuru/README.md`](scripts/kuru/README.md).
-
-## What has been tested
-
-- 95 Foundry tests pass (unit, fuzz and invariant): KYC registry, token, offering (contribute, finalize, claim, refund, caps, deadline, revoked KYC), factory, harvest redemption and full flows end to end.
-- Kuru: a fork test shows that any account can deploy a market for a custom token against Kuru's testnet USDC.
-- The market script was run on a local fork of Monad testnet with test tokens: the market was created, the vault was seeded and the book quoted around the target price.
-- On Monad testnet, for real: deploy of all contracts, `contribute` to the hard cap, `finalize`, `claim`, then `scripts/kuru/open-market.ts --offering` created the SOJA26/mUSDC market through Kuru's Router (`deployProxy`) and seeded the vault with 500,000 SOJA26 and 50,000 mUSDC.
-
-- All five deployed contracts are source-verified on Sourcify (`exact_match`, via BlockVision's Sourcify instance).
-
-Not done yet: a run with Kuru's official testnet USDC and an external security review. The contracts have only been reviewed by the team.
+For a fully local run on anvil without Privy, see [`frontend/README.md`](frontend/README.md).
 
 ## Roadmap
 
-- Harvest settlement and share redemption.
-- Harvest forwards with escrow.
-- Tokenized stocks with proof of reserve.
-- Credit against shards, priced on onchain history.
-- A permissioned wrapper to extend KYC to the secondary market.
+| Phase | Goal |
+|---|---|
+| 1. Closed pilot | One real lot with a partner grain elevator and qualified investors; real settlement through `HarvestRedemption`; external audit. |
+| 2. Regulated structure | Financial-trust program with one series per lot and tokenized certificates; VASP registration (own or partner); permissioned secondary market; Monad mainnet. |
+| 3. Scale | Several series per season, a designated market maker, peso on/off-ramps, automated season reports. |
+| 4. New assets | Livestock and regional economies, electronic warrants as collateral, loans against shards. |
+
+## Third-party code and attribution
+
+FractaChain's contracts, scripts and frontend were written by the team during the hackathon. It builds on these open-source projects and services, used under their own licenses:
+
+| Project | Use |
+|---|---|
+| [forge-std](https://github.com/foundry-rs/forge-std) (MIT/Apache-2.0) | Test and script utilities for Foundry (git submodule in `contracts/lib`). |
+| [Kuru](https://kuru.io) contracts and [`@kuru-labs/kuru-sdk`](https://www.npmjs.com/package/@kuru-labs/kuru-sdk) | Order book, vaults and market parameters. Kuru's ABIs are included in `frontend/src/lib/kuru.ts`. |
+| [Privy](https://privy.io) (`@privy-io/react-auth`, `@privy-io/wagmi`) | Login, embedded wallets, gas sponsorship. |
+| [Next.js](https://nextjs.org), [React](https://react.dev), [Tailwind CSS](https://tailwindcss.com), [lucide-react](https://lucide.dev) | Web framework, UI and icons. |
+| [wagmi](https://wagmi.sh), [viem](https://viem.sh), [TanStack Query](https://tanstack.com/query), [ethers](https://docs.ethers.org/v5/) | Chain reads and writes. |
+| [Envio HyperSync](https://envio.dev) | Indexed chain history for the activity page. |
+
+Third-party names and logos shown in the app (for example BYMA, Caja de Valores or Matba Rofex) are references to Argentine market infrastructure. FractaChain has no agreement or partnership with them.
+
+## AI tools disclosure
+
+We used AI coding assistants during the hackathon (Claude Code, Cursor and Devin) to help write and review code, tests and documentation. All AI-assisted changes were reviewed, tested and committed by the team.
+
+## License
+
+[MIT](LICENSE).
 
 ## Origin
 
