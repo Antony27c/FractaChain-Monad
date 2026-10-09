@@ -123,6 +123,25 @@ A shard offered to the public in exchange for a share of a harvest's sale procee
 
 Full plan, in Spanish, with sources, risks, operating cycle and open legal questions: [`PLAN_LEGAL_OPERATIVO.md`](PLAN_LEGAL_OPERATIVO.md).
 
+## Business model
+
+**Customers.** Farmers and agri SMEs raise money before harvest; investors get dollar exposure to a real harvest from small amounts, with an exit on Kuru at any time; grain elevators and cooperatives finance their farmers with third-party money instead of their own balance sheet.
+
+**What we compete against.** Farmers already pay their elevator a marketing commission of about 2% of the grain's value for soy and wheat (INTA, 2025/26 season) and finance the season at 8.5% to 12.5% a year in dollars (Bolsa de Comercio de Rosario, 2025/26). FractaChain does not add a new layer of cost: it shares what the circuit already charges, and only earns when a lot works.
+
+| Revenue | Who pays | When |
+|---|---|---|
+| Share of the marketing commission | Partner elevator, from the commission it already charges | When the lot's harvest is sold and settled. |
+| Reduced success fee (0.5% of the amount raised) | Issuer | Only when an auction reaches its minimum. |
+| Lot structuring | Issuer or elevator | When the series is set up (due diligence, documents, trust). |
+| White-label licence | Elevators, cooperatives, fintechs | Monthly or per originated lot. |
+
+**One lot, illustrated.** 1,000 t of soy (US$ 316,000 of grain) financed with a US$ 250,000 auction: half of the elevator's ~1.9% commission (US$ 2,950) plus the 0.5% success fee (US$ 1,250) gives **US$ 4,200 per lot**. For the farmer only the 0.5% is new, about one point annualized over a six-month season, so the total cost stays within the 8.5% to 12.5% benchmark if investors accept 6% to 8% a year.
+
+**Liquidity is a strategy, not a revenue line.** The issuer seeds the Kuru vault with unsold shards and part of the proceeds, any holder can add liquidity, and an external market maker is planned. FractaChain does not need its own capital to open markets.
+
+The deployed contracts charge no fees yet; the success fee is planned for the next version of `Offering`. Full model, in Spanish, with costs, channels, metrics and sources: [`MODELO_DE_NEGOCIO.md`](MODELO_DE_NEGOCIO.md).
+
 ## Deployed on Monad testnet (chain ID 10143)
 
 | Contract | Address |
@@ -157,6 +176,7 @@ Not done yet: an external security audit and a run with Kuru's official testnet 
 | `frontend/` | Next.js + wagmi + viem + Privy. Setup and env vars: [`frontend/README.md`](frontend/README.md). |
 | `scripts/kuru/` | CLI script that opens a Kuru market and seeds its vault. |
 | `PLAN_LEGAL_OPERATIVO.md` | Legal and operational plan (Spanish). |
+| `MODELO_DE_NEGOCIO.md` | Business model (Spanish). |
 | `PROYECTO.md` | Project log: decisions, status and open questions (Spanish). |
 
 ## Quick start
