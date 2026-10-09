@@ -32,7 +32,7 @@ export default function StocksPage() {
   const [trading, setTrading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [alycAccount, setAlycAccount] = useState("ALYC-Balanz-49201");
+  const [alycAccount, setAlycAccount] = useState("ALYC-ejemplo-49201");
 
   const total = shares * selected.priceUsd;
 
@@ -51,7 +51,7 @@ export default function StocksPage() {
         icon={TrendingUp}
         chip="Mercado secundario Merval"
         title={pages.stocksTitle}
-        lead="Operá títulos líderes del panel principal de Bolsas y Mercados Argentinos (BYMA) con respaldo real e inmovilización en subcuenta comitente de Caja de Valores S.A."
+        lead="Maqueta de cómo se operarían títulos líderes del panel de BYMA tokenizados 1:1 y custodiados en una subcuenta comitente de Caja de Valores S.A. Los datos son simulados y no hay acuerdos con esas entidades."
         product="Merval"
       />
 
@@ -63,18 +63,18 @@ export default function StocksPage() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-ink">Prueba de reserva en tiempo real (Proof of Reserve)</h3>
-              <p className="text-[11px] text-muted">Auditoría criptográfica y conciliación diaria con Caja de Valores S.A.</p>
+              <p className="text-[11px] text-muted">Ejemplo simulado de auditoría y conciliación diaria contra el custodio.</p>
             </div>
           </div>
           <span className={`${mock.pill} inline-flex items-center gap-1.5 rounded-full text-[11px]`}>
-            <CheckCircle2 className="h-3.5 w-3.5" /> 100.00% RESPALDADO 1:1
+            <CheckCircle2 className="h-3.5 w-3.5" /> RESPALDO 1:1 (SIMULADO)
           </span>
         </div>
 
         <div className="grid grid-cols-1 gap-3 pt-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Subcuenta comitente", "84920-CV (Segregada)"],
-            ["Auditor externo", "PwC / CNV RG 1150"],
+            ["Subcuenta comitente", "Ejemplo (simulada)"],
+            ["Auditor externo", "A designar"],
             ["Última conciliación", selected.lastAuditTimestamp],
             ["Liquidación", "Inmediata T+0"],
           ].map(([label, value]) => (
@@ -107,7 +107,7 @@ export default function StocksPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-base font-bold text-ink">{stock.symbol}</span>
                         <span className="font-mono text-xs text-muted">({stock.tickerMerval})</span>
-                        <span className="rounded border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[9px] text-accent-strong">1:1 Custodia</span>
+                        <span className="rounded border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[9px] text-accent-strong">1:1 (simulado)</span>
                       </div>
                       <div className="truncate text-xs text-muted">{stock.companyName}</div>
                       <div className="mt-0.5 font-mono text-[10px] text-muted">ISIN: {stock.isin}</div>
@@ -227,7 +227,7 @@ export default function StocksPage() {
                   <Building2 className="h-4 w-4" /> Retiro a Caja de Valores
                 </div>
                 <p className="text-[11px] leading-relaxed text-muted">
-                  Tus tokens se queman onchain y las acciones subyacentes se transfieren desde la subcuenta 84920 a tu ALYC receptora autorizada.
+                  Tus tokens se queman onchain y las acciones subyacentes se transfieren desde la subcuenta comitente a tu ALYC receptora autorizada.
                 </p>
                 <input
                   type="text"

@@ -17,8 +17,8 @@ type Forward = {
 };
 
 const FORWARDS: Forward[] = [
-  { id: "FWD-SOJA-2026-01", producer: "Agropecuaria Las Lilas S.A.", commodity: "Soja", tons: 500, strikePriceUsd: 310, deliveryDate: "15 Mayo 2027", penaltyPercent: 20, rolloverBonusPercent: 10 },
-  { id: "FWD-MAIZ-2026-04", producer: "Don Horacio Cereales S.R.L.", commodity: "Maíz", tons: 1200, strikePriceUsd: 175, deliveryDate: "30 Agosto 2027", penaltyPercent: 20, rolloverBonusPercent: 10 },
+  { id: "FWD-SOJA-2026-01", producer: "Productor de ejemplo 1", commodity: "Soja", tons: 500, strikePriceUsd: 310, deliveryDate: "15 Mayo 2027", penaltyPercent: 20, rolloverBonusPercent: 10 },
+  { id: "FWD-MAIZ-2026-04", producer: "Productor de ejemplo 2", commodity: "Maíz", tons: 1200, strikePriceUsd: 175, deliveryDate: "30 Agosto 2027", penaltyPercent: 20, rolloverBonusPercent: 10 },
 ];
 
 const fmt = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 0 });

@@ -20,8 +20,8 @@ type Warrant = {
 };
 
 const WARRANTS: Warrant[] = [
-  { id: "WAR-9643-001", certificateNumber: "CD-CU-2026-9481", warehouseCompany: "Control Union Argentina S.A. (Almacén Gral. Depósito)", commodity: "Soja", tons: 1000, collateralValueUsd: 310000, loanAmountUsd: 170500, ltvPercent: 55, healthFactor: 1.36 },
-  { id: "WAR-9643-002", certificateNumber: "CD-SGS-2026-1120", warehouseCompany: "SGS Argentina Warrant S.A.", commodity: "Maíz", tons: 2500, collateralValueUsd: 437500, loanAmountUsd: 240625, ltvPercent: 55, healthFactor: 1.36 },
+  { id: "WAR-9643-001", certificateNumber: "CD-EJ1-2026-9481", warehouseCompany: "Almacén de ejemplo 1 (warrantera simulada)", commodity: "Soja", tons: 1000, collateralValueUsd: 310000, loanAmountUsd: 170500, ltvPercent: 55, healthFactor: 1.36 },
+  { id: "WAR-9643-002", certificateNumber: "CD-EJ2-2026-1120", warehouseCompany: "Almacén de ejemplo 2 (warrantera simulada)", commodity: "Maíz", tons: 2500, collateralValueUsd: 437500, loanAmountUsd: 240625, ltvPercent: 55, healthFactor: 1.36 },
 ];
 
 const PRICES: Record<Commodity, number> = { Soja: 310, Maíz: 175, Trigo: 220 };
