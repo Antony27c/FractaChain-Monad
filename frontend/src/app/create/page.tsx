@@ -3,12 +3,15 @@
 import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { formatUnits, parseUnits } from "viem";
+import { useReadContract } from "wagmi";
 import { BookOpen, Coins, Info, Layers, Route, ShieldCheck, Sprout, Target, type LucideIcon } from "lucide-react";
-import { issuanceFactoryAbi, kycRegistryAbi } from "@/lib/abi";
-import { addresses, contractsConfigured } from "@/lib/env";
+import { erc20Abi, issuanceFactoryAbi, kycRegistryAbi } from "@/lib/abi";
+import { addresses, contractsConfigured, USDC_DECIMALS } from "@/lib/env";
+import { formatUsdc } from "@/lib/format";
 import { button, field, notice, panel } from "@/lib/ui";
 import { useVerification } from "@/hooks/useInvestor";
 import { useTx } from "@/hooks/useTx";
+import { TestFundsButton } from "@/components/TestFundsButton";
 
 const DEFAULTS = {
   name: "Shard Soja 2027",
@@ -91,7 +94,9 @@ const num = (v: string) => {
 };
 const fmt = (n: number, max = 2) => n.toLocaleString("es-AR", { maximumFractionDigits: max });
 
-function Summary({ form }: { form: Form }) {
+type SummaryProps = { form: Form; account: `0x${string}`; balance?: bigint; onDemoCaps: () => void };
+
+function Summary({ form, account, balance, onDemoCaps }: SummaryProps) {
   const price = num(form.price);
   const supply = num(form.supply);
   const soft = num(form.softCap);
@@ -109,6 +114,9 @@ function Summary({ form }: { form: Form }) {
       : null,
     soft > hard && hard > 0 ? "El mínimo no puede ser mayor que el máximo." : null,
   ].filter((m): m is string => Boolean(m));
+  const funds = balance !== undefined ? Number(formatUnits(balance, USDC_DECIMALS)) : undefined;
+  const short = funds !== undefined && soft > funds ? `Tu saldo (${fmt(funds)} USDC) no alcanza el mínimo de ${fmt(soft)} USDC. Si probás el flujo vos solo, la licitación no va a llegar al mínimo y terminará en reembolso.` : null;
+  const gap = funds !== undefined && !short && hard > funds ? hard - funds : 0;
 
   const rows: [string, string][] = [
     ["Shards vendidos si se llena", sold ? `${fmt(sold, 0)} (${fmt(pct, 1)}%)` : "-"],
@@ -146,6 +154,27 @@ function Summary({ form }: { form: Form }) {
           </div>
         ))}
       </dl>
+      <div className="mt-5 space-y-3 border-t border-line pt-5 text-sm">
+        <div className="flex justify-between gap-4">
+          <span className="text-muted">Tu saldo USDC</span>
+          <span className="font-mono tabular-nums">{balance !== undefined ? formatUsdc(balance) : "..."}</span>
+        </div>
+        {balance !== undefined && <TestFundsButton account={account} balance={balance} />}
+        {gap > 0 && (
+          <p className="text-xs text-muted">
+            Te faltan {fmt(gap)} USDC para llenar el máximo vos solo. No es un problema: la licitación igual es exitosa y
+            cierra al vencer el plazo.
+          </p>
+        )}
+        {short && (
+          <div className={notice.warn}>
+            <p>{short}</p>
+            <button type="button" onClick={onDemoCaps} className={`${button.secondary} mt-3`}>
+              Usar topes de demo (100 / 250 USDC)
+            </button>
+          </div>
+        )}
+      </div>
       {issues.map((m) => (
         <p key={m} className={`${notice.warn} mt-4`}>
           {m}
@@ -197,6 +226,13 @@ export default function CreatePage() {
   const [formError, setFormError] = useState<string | null>(null);
   const { address, ready, verified, openVerification } = useVerification();
   const tx = useTx();
+  const { data: balance } = useReadContract({
+    address: addresses.usdc,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address!],
+    query: { enabled: Boolean(address && addresses.usdc), refetchInterval: 12000 },
+  });
 
   if (!contractsConfigured) {
     return (
@@ -374,7 +410,14 @@ export default function CreatePage() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-          {address && verified && <Summary form={form} />}
+          {address && verified && (
+            <Summary
+              form={form}
+              account={address}
+              balance={balance}
+              onDemoCaps={() => setForm({ ...form, softCap: "100", hardCap: "250" })}
+            />
+          )}
           <Guide />
         </aside>
       </div>
