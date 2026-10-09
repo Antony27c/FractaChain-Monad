@@ -28,6 +28,7 @@ export function Footer() {
               <h4 className={heading}>{footer.markets}</h4>
               <ul className="space-y-2">
                 <li><Link href="/market" className={link}>{nav.market}</Link></li>
+                <li><Link href="/orderbook" className={link}>{t("nav.orderbook")}</Link></li>
                 <li><Link href="/stocks" className={link}>{nav.stocks}</Link></li>
                 <li><Link href="/forwards" className={link}>{nav.forwards}</Link></li>
                 <li><Link href="/warrants" className={link}>{nav.warrants}</Link></li>

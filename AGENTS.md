@@ -45,7 +45,8 @@ Cada paso ocurre sin MON: el gas lo paga Privy.
 | `lots/[offering]/page.tsx` | Detalle del lote: participación, aporte, finalizar, reclamar, reembolso; monta `SecondaryMarket` y `HarvestRedemptionPanel` si el lote está exitoso. | Cuidado | Los paneles salen según `lot.status` (`active`, `ready`, `succeeded`, `failed`). Aportar hace `approve` solo si `allowance < monto`, luego `contribute`. |
 | `actividad/page.tsx` | Tabla "Mi actividad" desde `/api/activity`. | Libre en estilo | El shape `Activity` (`lib/activity.ts`) es el contrato con la ruta. |
 | `api/activity/route.ts` | Lee `Transfer` ERC-20 del usuario en HyperSync y los clasifica por transacción. | Cuidado | Corre en servidor con `ENVIO_API_TOKEN`. La clasificación mira signo de USDC/shards y contraparte. Un contrato nuevo del flujo pide una regla nueva. |
-| `api/kuru/precisions/route.ts` | Calcula precisiones de mercado con el SDK de Kuru. | Cuidado | Es el único lugar donde entra `@kuru-labs/kuru-sdk`. |
+| `orderbook/page.tsx` | Orderbook: selector de pares de lotes exitosos, libro L2 de Kuru (`/api/kuru/book`, cada 10 s) y `TradePanel`. Tocar un nivel precarga el monto (`preset`). | Cuidado | Un par sin mercado lleva a la página del lote. |
+| `api/kuru/precisions/route.ts`, `api/kuru/book/route.ts` | Precisiones de mercado y libro L2 con el SDK de Kuru. | Cuidado | Son los únicos lugares donde entra `@kuru-labs/kuru-sdk`. El libro lee con viem y el SDK solo decodifica: el cliente HTTP de ethers falla dentro del bundle de Next. |
 | `layout.tsx` | Fuentes, metadatos y orden de providers: `ThemeProvider` > `I18nProvider` > `Providers` > `CrystalBackdrop`, `Header`, `main`, `DevTools`. | Cuidado | Conservá ese orden. El script inline de `sc_theme` evita el parpadeo de tema. |
 | `providers.tsx` | Elige modo dev (anvil) o Privy; arma wagmi y react-query. | Núcleo | En Privy: `PrivyProvider` (email, google, wallet; wallet embebida automática) > `QueryClientProvider` > `WagmiProvider`. |
 | `globals.css` | Tema Tailwind 4, variables, `btn-lcd*`, `crystal-card`, `glass-panel`, `hero-lcd`, animaciones `reveal`/`skeleton`. | Libre | Cada color nuevo se define en claro y en `html.dark`. `--surface` y `crystal-card` son translúcidos: un menú flotante usa `bg-bg`. |
@@ -54,7 +55,7 @@ Cada paso ocurre sin MON: el gas lo paga Privy.
 
 | Archivo | Rol | Alcance | Respetá |
 |---|---|---|---|
-| `Header`, `ThemeToggle` (`LangToggle`), `CrystalBackdrop` | Navegación, tema/idioma, fondo. | Libre | `Header` elige `DevAccountPicker` (dev) o `LoginButton`. |
+| `Header`, `ThemeToggle` (`LangToggle`), `CrystalBackdrop` | Navegación (Licitaciones `/market`, Orderbook `/orderbook`, Tokenizar `/create`), tema/idioma, fondo. | Libre | `Header` elige `DevAccountPicker` (dev) o `LoginButton`. |
 | `LotCard`, `ProgressBar`, `StatusBadge` | Presentación de un lote. | Libre | Reciben el `Lot` de `useLots`; mantené sus props. |
 | `LoginButton`, `AccountMenu` | Login, dirección, saldos, exportar wallet, vincular cuenta, link a `/actividad`. | Cuidado | Con sesión pero sin dirección muestra "Preparando tu wallet...". Los hooks de Privy viven solo bajo `PrivyProvider`. |
 | `TestFundsButton` | `mint` de USDC de prueba si el saldo es 0. | Cuidado | Se oculta con `NEXT_PUBLIC_USDC_MINTABLE=false`. |

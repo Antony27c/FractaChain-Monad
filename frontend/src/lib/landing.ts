@@ -192,7 +192,7 @@ const es: LandingCopy = {
     notice: "Aviso",
     legal: "Diseñado para el sandbox de tokenización de la CNV (RG 1150/2026); no es una autorización obtenida. Merval, forwards y warrants son maquetas, sin acuerdos con BYMA ni Caja de Valores. Forwards y warrants: Art. 1131 CCyC y Ley 9643.",
   },
-  nav: { market: "Lotes", stocks: "Merval", forwards: "Forwards", warrants: "Warrants" },
+  nav: { market: "Licitaciones", stocks: "Merval", forwards: "Forwards", warrants: "Warrants" },
   mock: {
     title: "Maqueta: no opera onchain",
     body: "{product} es un simulador de producto. El flujo vivo es el de los",
@@ -367,7 +367,7 @@ const en: LandingCopy = {
     notice: "Notice",
     legal: "Designed for the CNV tokenization sandbox (RG 1150/2026); no authorization has been obtained. Merval, forwards and warrants are mockups, with no agreements with BYMA or Caja de Valores. Forwards and warrants: Civil Code Art. 1131 and Law 9643.",
   },
-  nav: { market: "Lots", stocks: "Merval", forwards: "Forwards", warrants: "Warrants" },
+  nav: { market: "Auctions", stocks: "Merval", forwards: "Forwards", warrants: "Warrants" },
   mock: {
     title: "Mockup: not onchain",
     body: "{product} is a product simulator. The live flow is the",

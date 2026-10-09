@@ -39,14 +39,14 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph Browser["Browser (Next.js app)"]
-        UI["Pages: lots, issue lot, lot detail, activity"]
+        UI["Pages: auctions, orderbook, tokenize, lot detail, activity"]
         TX["useTx hook<br/><small>Privy embedded wallet + gas sponsorship<br/>or external wallet</small>"]
         RD["wagmi + viem reads<br/><small>batched through Multicall3</small>"]
     end
 
     subgraph Server["Next.js server routes"]
         ACT["/api/activity<br/><small>Envio HyperSync</small>"]
-        PREC["/api/kuru/precisions<br/><small>Kuru SDK</small>"]
+        PREC["/api/kuru/precisions + /api/kuru/book<br/><small>Kuru SDK</small>"]
     end
 
     subgraph Monad["Monad testnet"]
@@ -95,6 +95,7 @@ flowchart TB
 ## Kuru integration
 
 - **Market creation from the app.** The issuer clicks "Open market": the app deploys a shard/USDC market through Kuru's Router (`deployProxy`) and seeds the vault in the same flow. Market precisions come from `@kuru-labs/kuru-sdk`, computed server-side.
+- **Orderbook page.** `/orderbook` shows every listed pair with Kuru's L2 book (12 levels per side, including vault liquidity, refreshed every 10 s). Clicking a level loads that size into the order panel.
 - **Trading.** Market buy and sell orders (`placeAndExecuteMarketBuy/Sell`) with a quote before signing, slippage tolerance (0.5 / 1 / 3 %) enforced as `minAmountOut`, and token approval only when needed.
 - **Liquidity provision.** Anyone can deposit shards and USDC into the market's vault at the current price and withdraw their share later. In a testnet fork, adding 2,000 shards and 241.6 USDC cut the price impact of a 10 USDC buy from ~11 % to ~3 %.
 - **Initial market formation.** The vault is seeded at the primary-offering price, so trading opens anchored to what investors paid. The plan adds a per-lot liquidity reserve and a designated market maker (see the [legal and operational plan](PLAN_LEGAL_OPERATIVO.md#8-liquidez-y-formación-inicial-del-mercado)).

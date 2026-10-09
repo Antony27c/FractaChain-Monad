@@ -25,6 +25,9 @@ export function Header() {
             <Link href="/market" className={navLink}>
               {t("nav.lots")}
             </Link>
+            <Link href="/orderbook" className={navLink}>
+              {t("nav.orderbook")}
+            </Link>
             <Link href="/create" className={navLink}>
               {t("nav.create")}
             </Link>

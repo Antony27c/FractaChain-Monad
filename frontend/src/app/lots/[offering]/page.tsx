@@ -50,7 +50,7 @@ export default function LotPage() {
 
   const back = (
     <Link href="/market" className="text-sm text-muted transition-colors hover:text-ink">
-      &larr; {t("Lotes", "Lots")}
+      &larr; {t("Licitaciones", "Auctions")}
     </Link>
   );
 
@@ -84,7 +84,7 @@ export default function LotPage() {
             {t("Puede que la dirección esté mal escrita o que el lote sea de otra red.", "The address may be mistyped, or the lot may be on another network.")}
           </p>
           <Link href="/market" className={`${button.primary} mt-6`}>
-            {t("Ver lotes", "View lots")}
+            {t("Ver licitaciones", "View auctions")}
           </Link>
         </div>
       </div>

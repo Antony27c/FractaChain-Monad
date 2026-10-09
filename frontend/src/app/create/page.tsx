@@ -334,7 +334,7 @@ export default function CreatePage() {
           className="reveal mt-2 text-3xl font-semibold leading-[1.1] tracking-tighter md:text-4xl"
           style={{ "--i": 1 } as CSSProperties}
         >
-          {t("Emitir un lote", "Issue a lot")}
+          {t("Tokenizar un activo", "Tokenize an asset")}
         </h1>
         <p className="reveal mt-3 max-w-[65ch] leading-relaxed text-muted" style={{ "--i": 2 } as CSSProperties}>
           {t(
@@ -437,7 +437,7 @@ export default function CreatePage() {
                   <p role="status" className={notice.ok}>
                     {t("Lote creado.", "Lot created.")}{" "}
                     <Link href="/market" className="font-medium underline underline-offset-2">
-                      {t("Ver lotes", "View lots")}
+                      {t("Ver licitaciones", "View auctions")}
                     </Link>
                   </p>
                 )}

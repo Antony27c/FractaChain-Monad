@@ -12,7 +12,8 @@ import { useT } from "@/lib/i18n";
 import type { Lot } from "@/hooks/useLots";
 import type { useKuruMarket } from "@/hooks/useKuruMarket";
 
-type Side = "buy" | "sell";
+export type Side = "buy" | "sell";
+export type TradePreset = { side: Side; amount: string; nonce: number };
 type MarketInfo = NonNullable<ReturnType<typeof useKuruMarket>["info"]>;
 
 function useDebounced<T>(value: T, ms = 400) {
@@ -24,10 +25,26 @@ function useDebounced<T>(value: T, ms = 400) {
   return debounced;
 }
 
-export function TradePanel({ lot, market, account }: { lot: Lot; market: MarketInfo; account?: `0x${string}` }) {
+export function TradePanel({
+  lot,
+  market,
+  account,
+  preset,
+}: {
+  lot: Lot;
+  market: MarketInfo;
+  account?: `0x${string}`;
+  preset?: TradePreset;
+}) {
   const tx = useTx();
   const [side, setSide] = useState<Side>("buy");
   const [amount, setAmount] = useState("");
+
+  useEffect(() => {
+    if (!preset) return;
+    setSide(preset.side);
+    setAmount(preset.amount);
+  }, [preset]);
   const [slippage, setSlippage] = useState<number>(100);
   const t = useT();
 
