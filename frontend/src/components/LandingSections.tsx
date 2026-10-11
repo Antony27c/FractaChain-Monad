@@ -39,7 +39,7 @@ const PRODUCT_ICONS = [ShoppingBasket, LineChart, Landmark];
 const PRODUCT_HREFS = ["/forwards", "/market", "/warrants"];
 
 export function ProductsSection() {
-  const copy = useLanding().products;
+  const { products: copy, soon } = useLanding();
   return (
     <section className="space-y-6 sm:space-y-8">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -59,16 +59,19 @@ export function ProductsSection() {
             <article
               key={p.title}
               className={`flex flex-col space-y-4 rounded-2xl p-5 sm:rounded-3xl ${
-                featured ? "bg-ink text-bg shadow-xl sm:p-8 md:-translate-y-1" : "crystal-card sm:p-6"
+                featured ? "bg-ink text-bg shadow-xl sm:p-8 md:-translate-y-1" : "crystal-card sm:p-5"
               }`}
             >
               <div className="flex items-center justify-between">
                 <span className={`font-lcd text-xs ${muted}`}>{p.kicker}</span>
-                <Icon className={`h-5 w-5 ${ink}`} />
+                <div className="flex items-center gap-2">
+                  {!featured && <span className={tag}>{soon}</span>}
+                  <Icon className={`h-5 w-5 ${ink}`} />
+                </div>
               </div>
               <h3 className={`${featured ? "text-2xl" : "text-lg"} font-extrabold leading-tight ${ink}`}>{p.title}</h3>
               <p className={`font-semibold ${ink}`}>{p.lead}</p>
-              <p className={`flex-1 text-sm ${muted} sm:text-base`}>
+              <p className={`flex-1 text-sm ${muted}${featured ? " sm:text-base" : ""}`}>
                 {p.body}{" "}
                 {p.tip && (
                   <span className="group relative inline-flex align-middle">
