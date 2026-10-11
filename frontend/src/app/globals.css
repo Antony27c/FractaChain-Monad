@@ -2,6 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tema claro (blanco) — se activa con el toggle */
 :root {
   --bg: #ffffff;
   --surface: rgba(255, 255, 255, 0.7);
@@ -16,21 +17,26 @@
   --bad: #b91c1c;
   --lcd-green: #b8f0a4;
   --lcd-green-deep: #7ed86a;
+  --logo-mark: rgba(78, 167, 67, 0.11);
   color-scheme: light;
 }
 
+/* Tema violeta + verde neón (default) */
 html.dark {
-  --bg: #09090b;
-  --surface: rgba(24, 24, 27, 0.72);
-  --ink: #f4f4f5;
-  --muted: #a1a1aa;
-  --line: rgba(255, 255, 255, 0.12);
-  --accent: #7ed86a;
-  --accent-strong: #a3e693;
-  --accent-ink: #09090b;
-  --ok: #7bd69a;
-  --warn: #e5b567;
-  --bad: #f87171;
+  --bg: #1d1044;
+  --surface: rgba(120, 90, 200, 0.16);
+  --ink: #f2eeff;
+  --muted: #b3a4e2;
+  --line: rgba(196, 181, 253, 0.18);
+  --accent: #a3ff2e;
+  --accent-strong: #c8ff6e;
+  --accent-ink: #1d1044;
+  --ok: #66f2a0;
+  --warn: #ffd166;
+  --bad: #ff7a8a;
+  --lcd-green: #a3ff2e;
+  --lcd-green-deep: #7ee000;
+  --logo-mark: rgba(163, 255, 46, 0.22);
   color-scheme: dark;
 }
 
@@ -71,9 +77,12 @@ html {
 html,
 body {
   color: var(--ink);
-  background: var(--bg);
   min-height: 100%;
   overflow-x: clip;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
@@ -109,13 +118,35 @@ p {
   border: 1px solid rgba(140, 190, 120, 0.35);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 18px 40px -28px rgba(70, 130, 50, 0.35);
+    0 24px 48px -18px rgba(70, 130, 50, 0.4),
+    0 8px 18px -12px rgba(70, 130, 50, 0.3);
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.crystal-card:hover,
+.crystal-card:focus-visible,
+.crystal-card:active {
+  background: linear-gradient(180deg, rgba(163, 255, 46, 0.22), rgba(120, 220, 60, 0.14)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(232, 248, 224, 0.45));
+  border-color: rgba(140, 200, 60, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 28px 56px -18px rgba(70, 130, 50, 0.45),
+    0 0 34px -6px rgba(140, 220, 60, 0.4);
 }
 
 .liquid-sheen {
   background:
     radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.85), transparent 45%),
     repeating-linear-gradient(115deg, transparent 0 13px, rgba(184, 240, 164, 0.12) 13px 14px);
+}
+
+.logo-watermark {
+  color: var(--logo-mark);
 }
 
 .logo-lockup {
@@ -195,44 +226,83 @@ p {
   border-radius: 3px;
 }
 
+/* ---- Tema violeta: superficies ---- */
 html.dark .crystal-backdrop {
-  background: #09090b;
-}
-
-html.dark .crystal-backdrop > div:not(.liquid-sheen) {
-  opacity: 0.22;
-  filter: saturate(0.55) brightness(0.45);
+  background: #1d1044;
 }
 
 html.dark .crystal-card {
-  background: linear-gradient(180deg, rgba(28, 32, 28, 0.86), rgba(14, 18, 14, 0.72));
-  border-color: rgba(140, 190, 120, 0.22);
+  background: linear-gradient(180deg, rgba(96, 58, 180, 0.42), rgba(44, 24, 96, 0.5));
+  border-color: rgba(196, 181, 253, 0.22);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 18px 40px -28px rgba(0, 0, 0, 0.7);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 48px -18px rgba(10, 4, 32, 0.8),
+    0 8px 18px -12px rgba(10, 4, 32, 0.7),
+    0 0 0 1px rgba(163, 255, 46, 0.05);
+}
+
+html.dark .crystal-card:hover,
+html.dark .crystal-card:focus-visible,
+html.dark .crystal-card:active {
+  background: linear-gradient(180deg, rgba(163, 255, 46, 0.2), rgba(120, 220, 60, 0.12)),
+    linear-gradient(180deg, rgba(96, 58, 180, 0.42), rgba(44, 24, 96, 0.5));
+  border-color: rgba(163, 255, 46, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 28px 56px -18px rgba(10, 4, 32, 0.85),
+    0 0 34px -6px rgba(163, 255, 46, 0.4);
 }
 
 html.dark .glass-panel {
-  background: rgba(18, 20, 18, 0.62);
-  border-color: rgba(150, 200, 130, 0.2);
+  background: rgba(62, 36, 130, 0.42);
+  border-color: rgba(196, 181, 253, 0.2);
 }
 
-html.dark .hero-lcd {
-  color: #7ed86a;
-  text-shadow: 0 0 16px rgba(126, 216, 106, 0.35);
+html.dark .liquid-sheen {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(196, 150, 255, 0.18), transparent 50%),
+    repeating-linear-gradient(115deg, transparent 0 13px, rgba(163, 255, 46, 0.05) 13px 14px);
+}
+
+html.dark .btn-lcd {
+  color: #1d1044;
+  background: linear-gradient(
+    180deg,
+    rgba(220, 255, 160, 0.95) 0%,
+    rgba(163, 255, 46, 0.85) 48%,
+    rgba(200, 255, 110, 0.9) 100%
+  );
+  border-color: rgba(163, 255, 46, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -8px 16px rgba(120, 200, 0, 0.25),
+    0 10px 28px -12px rgba(163, 255, 46, 0.45);
+}
+
+html.dark .btn-lcd-solid {
+  background: linear-gradient(180deg, #dcff8f 0%, #a3ff2e 45%, #bfff55 100%);
+  color: #1d1044;
 }
 
 html.dark .btn-lcd-ghost {
-  background: linear-gradient(180deg, rgba(32, 40, 32, 0.75), rgba(18, 28, 18, 0.5));
-  color: #d7f0cc;
+  background: linear-gradient(180deg, rgba(120, 90, 200, 0.35), rgba(62, 36, 130, 0.4));
+  color: #dccdff;
+  border-color: rgba(196, 181, 253, 0.35);
+}
+
+html.dark .hero-lcd {
+  color: #a3ff2e;
+  text-shadow:
+    0 0 14px rgba(163, 255, 46, 0.45),
+    0 0 40px rgba(163, 255, 46, 0.2);
 }
 
 html.dark ::-webkit-scrollbar-track {
-  background: #141416;
+  background: #170d38;
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #4a3080;
 }
 
 @keyframes rise {

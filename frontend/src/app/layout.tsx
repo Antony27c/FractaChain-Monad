@@ -52,11 +52,11 @@ export default function RootLayout({
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('sc_theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}`,
+            __html: `try{if(localStorage.getItem('sc_theme')!=='light')document.documentElement.classList.add('dark')}catch(e){}`,
           }}
         />
       </head>
-      <body className="relative flex min-h-[100dvh] flex-col bg-bg font-sans text-ink selection:bg-leaf-200 selection:text-black">
+      <body className="relative flex min-h-[100dvh] flex-col font-sans text-ink selection:bg-leaf-200 selection:text-black">
         <ThemeProvider>
           <I18nProvider>
             <Providers>
