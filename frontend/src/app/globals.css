@@ -36,7 +36,7 @@ html.dark {
   --bad: #ff7a8a;
   --lcd-green: #a3ff2e;
   --lcd-green-deep: #7ee000;
-  --logo-mark: rgba(163, 255, 46, 0.22);
+  --logo-mark: rgba(163, 255, 46, 0.26);
   color-scheme: dark;
 }
 
@@ -147,6 +147,61 @@ p {
 
 .logo-watermark {
   color: var(--logo-mark);
+}
+
+@keyframes conn-flow {
+  to {
+    stroke-dashoffset: -230;
+  }
+}
+
+.logo-watermark .conn-mesh {
+  opacity: 0.55;
+}
+
+.logo-watermark .conn-line path {
+  animation: conn-flow 14s linear infinite;
+}
+
+.logo-watermark .conn-line path:nth-of-type(2n) {
+  animation-duration: 19s;
+}
+
+.logo-watermark .conn-line path:nth-of-type(3n) {
+  animation-duration: 11s;
+  animation-direction: reverse;
+}
+
+@keyframes node-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+.logo-watermark .conn-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-pulse 4.5s ease-in-out infinite;
+}
+
+.logo-watermark .conn-node:nth-of-type(2n) {
+  animation-delay: -1.4s;
+}
+
+.logo-watermark .conn-node:nth-of-type(3n) {
+  animation-delay: -2.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-watermark .conn-line path,
+  .logo-watermark .conn-node {
+    animation: none;
+  }
 }
 
 .logo-lockup {
