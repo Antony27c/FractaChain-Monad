@@ -18,6 +18,8 @@
   --lcd-green: #b8f0a4;
   --lcd-green-deep: #7ed86a;
   --logo-mark: rgba(78, 167, 67, 0.11);
+  --globe-ocean-a: #f4fbee;
+  --globe-ocean-b: #e4f3d8;
   color-scheme: light;
 }
 
@@ -37,6 +39,8 @@ html.dark {
   --lcd-green: #a3ff2e;
   --lcd-green-deep: #7ee000;
   --logo-mark: rgba(163, 255, 46, 0.26);
+  --globe-ocean-a: #1a2418;
+  --globe-ocean-b: #10170f;
   color-scheme: dark;
 }
 
@@ -269,6 +273,109 @@ p {
   letter-spacing: -0.015em;
 }
 
+.hero-lead {
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 48rem;
+}
+
+@media (min-width: 640px) {
+  .hero-lead {
+    font-size: 1.05rem;
+  }
+}
+
+.below-fold h2,
+.below-fold h3 {
+  font-weight: 700;
+}
+
+.below-fold p {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+@media (min-width: 640px) {
+  .below-fold p {
+    font-size: 1.0625rem;
+  }
+}
+
+.kicker {
+  font-family: var(--font-lcd), ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+@keyframes globe-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes infinity-drift {
+  to {
+    stroke-dashoffset: -256;
+  }
+}
+
+@keyframes merval-reel {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.globe-float {
+  animation: globe-float 8s ease-in-out infinite;
+}
+
+.infinity-drift {
+  animation: infinity-drift 18s linear infinite;
+}
+
+.infinity-drift-rev {
+  animation: infinity-drift 22s linear infinite reverse;
+}
+
+.merval-reel {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.merval-reel-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: merval-reel 32s linear infinite;
+}
+
+.merval-reel:hover .merval-reel-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .globe-float,
+  .infinity-drift,
+  .infinity-drift-rev {
+    animation: none;
+  }
+
+  .hero-slot {
+    transition: none;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -380,6 +487,19 @@ html.dark ::-webkit-scrollbar-thumb {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  [data-scroll-reveal] [data-reveal="hidden"],
+  [data-scroll-reveal] [data-reveal="shown"] {
+    transition:
+      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--reveal-i, 0) * 90ms);
+  }
+
+  [data-scroll-reveal] [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
   .reveal {
     animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--i, 0) * 70ms);

@@ -4,11 +4,11 @@ const buttonBase =
 export const button = {
   primary: `${buttonBase} btn-lcd-solid`,
   secondary: `${buttonBase} btn-lcd-ghost`,
-  chip: "rounded-xl border border-line bg-surface px-3 py-1 text-xs font-bold tabular-nums transition hover:bg-ink/5 active:scale-[0.98]",
+  chip: "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-line bg-surface px-3 py-1 text-xs font-bold tabular-nums transition hover:bg-ink/5 active:scale-[0.98] sm:min-h-0 sm:min-w-0",
 };
 
 export const field =
-  "mt-2 w-full rounded-xl border border-line bg-bg/70 px-3 py-2 text-ink transition-colors placeholder:text-muted focus:border-accent";
+  "mt-2 w-full rounded-xl border border-line bg-bg/70 px-3 py-2 text-base text-ink transition-colors sm:text-sm placeholder:text-muted focus:border-accent";
 
 export const panel = "crystal-card rounded-2xl";
 

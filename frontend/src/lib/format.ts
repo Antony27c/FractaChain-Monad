@@ -27,16 +27,16 @@ export function formatPricePerShard(pricePerShard: bigint) {
   return `${int},${trimmed} USDC`;
 }
 
-export function formatDate(timestamp: bigint) {
-  return new Date(Number(timestamp) * 1000).toLocaleString("es-AR", {
+export function formatDate(timestamp: bigint, locale: "es" | "en" = "es") {
+  return new Date(Number(timestamp) * 1000).toLocaleString(locale === "en" ? "en-US" : "es-AR", {
     dateStyle: "medium",
     timeStyle: "short",
   });
 }
 
-export function timeLeft(deadline: bigint, now: bigint) {
+export function timeLeft(deadline: bigint, now: bigint, ended = "Finalizada") {
   const seconds = Number(deadline - now);
-  if (seconds <= 0) return "Finalizada";
+  if (seconds <= 0) return ended;
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);

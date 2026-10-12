@@ -9,6 +9,7 @@ import { formatShards, formatUsdc, shortAddress } from "@/lib/format";
 import { KURU_DEFAULTS, KURU_ROUTER, kuruRouterAbi, kuruVaultAbi, marketRegisteredEvent, minQuoteConsumed, quoteForShards } from "@/lib/kuru";
 import { button, field, notice } from "@/lib/ui";
 import { useTx } from "@/hooks/useTx";
+import { useT } from "@/lib/i18n";
 import type { Lot } from "@/hooks/useLots";
 
 type Deployed = { market: `0x${string}`; vault: `0x${string}` };
@@ -19,6 +20,7 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
   const [deployed, setDeployed] = useState<Deployed | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [step, setStep] = useState<string | null>(null);
+  const t = useT();
 
   const { data } = useReadContracts({
     contracts: [
@@ -47,8 +49,8 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
 
   const seedVault = async (target: Deployed) => {
     if (!seedShards || !seedQuote) return false;
-    setStep("Sembrando el vault (3 firmas: 2 aprobaciones y el depósito)");
-    return tx.run("Vault sembrado", [
+    setStep(t("Sembrando el vault (3 firmas: 2 aprobaciones y el depósito)", "Seeding the vault (3 signatures: 2 approvals and the deposit)"));
+    return tx.run(t("Vault sembrado", "Vault seeded"), [
       { address: lot.token, abi: erc20Abi, functionName: "approve", args: [target.vault, seedShards] },
       { address: addresses.usdc!, abi: erc20Abi, functionName: "approve", args: [target.vault, seedQuote] },
       {
@@ -66,12 +68,12 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
     try {
       let target = deployed;
       if (!target) {
-        setStep("Creando el mercado (1 firma)");
+        setStep(t("Creando el mercado (1 firma)", "Creating the market (1 signature)"));
         const res = await fetch(`/api/kuru/precisions?price=${price}`);
         const precisions = await res.json();
-        if (!res.ok) throw new Error(precisions.error ?? "No se pudieron calcular las precisiones.");
+        if (!res.ok) throw new Error(precisions.error ?? t("No se pudieron calcular las precisiones.", "Could not compute the market precisions."));
 
-        const receipts = await tx.runWithReceipts("Mercado creado", {
+        const receipts = await tx.runWithReceipts(t("Mercado creado", "Market created"), {
           address: KURU_ROUTER,
           abi: kuruRouterAbi,
           functionName: "deployProxy",
@@ -91,13 +93,13 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
         });
         if (!receipts) return;
         const log = parseEventLogs({ abi: [marketRegisteredEvent], logs: receipts[0].logs, eventName: "MarketRegistered" })[0];
-        if (!log) throw new Error("No se encontró el evento MarketRegistered en la transacción.");
+        if (!log) throw new Error(t("No se encontró el evento MarketRegistered en la transacción.", "The MarketRegistered event was not found in the transaction."));
         target = { market: log.args.market, vault: log.args.vaultAddress };
         setDeployed(target);
       }
       if (await seedVault(target)) onOpened(target.market);
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : "No se pudo abrir el mercado.");
+      setFormError(e instanceof Error ? e.message : t("No se pudo abrir el mercado.", "Could not open the market."));
     } finally {
       setStep(null);
     }
@@ -108,7 +110,10 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
   if (priceTooHigh) {
     return (
       <p className={`${notice.warn} mt-4`}>
-        El precio ({price} USDC) supera el máximo que soporta esta configuración de mercado ({KURU_DEFAULTS.maxPrice}).
+        {t(
+          `El precio (${price} USDC) supera el máximo que soporta esta configuración de mercado (${KURU_DEFAULTS.maxPrice}).`,
+          `The price (${price} USDC) exceeds the maximum this market configuration supports (${KURU_DEFAULTS.maxPrice}).`,
+        )}
       </p>
     );
   }
@@ -117,17 +122,17 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
     <div className="mt-4 space-y-4 text-sm">
       <dl className="space-y-2">
         <div className="flex justify-between gap-4">
-          <dt className="text-muted">Tus {lot.symbol}</dt>
+          <dt className="text-muted">{t("Tus", "Your")} {lot.symbol}</dt>
           <dd className="font-mono tabular-nums">{shardBalance !== undefined ? formatShards(shardBalance) : "..."}</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-muted">Tu saldo USDC</dt>
+          <dt className="text-muted">{t("Tu saldo USDC", "Your USDC balance")}</dt>
           <dd className="font-mono tabular-nums">{usdcBalance !== undefined ? formatUsdc(usdcBalance) : "..."}</dd>
         </div>
       </dl>
 
       <label className="block">
-        <span className="font-medium">Shards a sembrar en el vault</span>
+        <span className="font-medium">{t("Shards a sembrar en el vault", "Shards to seed into the vault")}</span>
         <input
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
@@ -140,24 +145,25 @@ export function OpenMarketForm({ lot, onOpened }: { lot: Lot; onOpened: (market:
 
       {seedShards && seedQuote ? (
         <p className="text-muted">
-          Se depositan <span className="font-mono text-ink">{formatShards(seedShards)} {lot.symbol}</span> y{" "}
-          <span className="font-mono text-ink">{formatUsdc(seedQuote)}</span>, al precio de la licitación.
+          {t("Se depositan", "Depositing")} <span className="font-mono text-ink">{formatShards(seedShards)} {lot.symbol}</span> {t("y", "and")}{" "}
+          <span className="font-mono text-ink">{formatUsdc(seedQuote)}</span>, {t("al precio de la licitación.", "at the auction price.")}
         </p>
       ) : null}
       {seedShards && !enough && shardBalance !== undefined && usdcBalance !== undefined && (
-        <p className="text-bad">Tu saldo de {lot.symbol} o de USDC no alcanza para esa siembra.</p>
+        <p className="text-bad">{t(`Tu saldo de ${lot.symbol} o de USDC no alcanza para esa siembra.`, `Your ${lot.symbol} or USDC balance is not enough for that seed.`)}</p>
       )}
 
-      <p className="text-xs text-muted">El primer depósito fija el precio del vault y no se corrige después.</p>
+      <p className="text-xs text-muted">{t("El primer depósito fija el precio del vault y no se corrige después.", "The first deposit sets the vault price and cannot be corrected later.")}</p>
 
       {deployed && (
         <p className={notice.warn}>
-          El mercado ya se creó ({shortAddress(deployed.market)}). Falta sembrar el vault: volvé a tocar el botón para reintentar.
+          {t("El mercado ya se creó", "The market was created")} ({shortAddress(deployed.market)}).{" "}
+          {t("Falta sembrar el vault: volvé a tocar el botón para reintentar.", "The vault still needs seeding: press the button again to retry.")}
         </p>
       )}
 
       <button onClick={open} disabled={busy || !enough} className={`${button.primary} w-full`}>
-        {busy ? "Procesando..." : deployed ? "Sembrar el vault" : "Abrir mercado"}
+        {busy ? t("Procesando...", "Processing...") : deployed ? t("Sembrar el vault", "Seed the vault") : t("Abrir mercado", "Open market")}
       </button>
       {step && <p className="text-xs text-muted">{step}</p>}
 

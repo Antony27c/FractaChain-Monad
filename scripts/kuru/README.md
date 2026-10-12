@@ -1,66 +1,66 @@
-# Script para abrir el mercado en Kuru
+# Script to open the Kuru market
 
-`open-market.ts` se ejecuta cuando termina la licitación. Con el SDK de Kuru (`@kuru-labs/kuru-sdk`):
-1. Calcula las precisiones del mercado según el precio.
-2. Crea el mercado shard/USDC con el Router de Kuru.
-3. Siembra el vault con shards y USDC al precio indicado.
+`open-market.ts` runs when the auction ends. With Kuru's SDK (`@kuru-labs/kuru-sdk`) it:
+1. Computes the market precisions from the price.
+2. Creates the shard/USDC market with Kuru's Router.
+3. Seeds the vault with shards and USDC at the given price.
 
-> El primer depósito fija el precio del vault y no se corrige después. Revisa los valores con `--dry-run` antes de enviar.
+> The first deposit sets the vault price and is not corrected later. Check the values with `--dry-run` before sending.
 
-## Uso
+## Usage
 ```bash
 cd scripts/kuru
 npm install
 ```
 
-### Modo offering (recomendado)
+### Offering mode (recommended)
 
-Lee el token, la moneda de pago y el precio directamente del contrato `Offering`, y exige que la licitación haya terminado con éxito (`status = Succeeded`). Es el modo que usa el botón "Abrir mercado" del frontend:
-
-```bash
-PRIVATE_KEY=0x... npm run open-market -- --offering <direccion del Offering> --seed 500000
-```
-
-### Modo manual
+Reads the token, payment token and price directly from the `Offering` contract, and requires the auction to have ended successfully (`status = Succeeded`). This is the mode used by the frontend's "Open market" button:
 
 ```bash
-PRIVATE_KEY=0x... BASE_TOKEN=<direccion del ShardToken> SEED_BASE=500000 npm run open-market
+PRIVATE_KEY=0x... npm run open-market -- --offering <Offering address> --seed 500000
 ```
 
-### Simulación
+### Manual mode
 
-`--dry-run` muestra precisiones, montos y saldos, y no envía nada (devuelve el JSON igual):
+```bash
+PRIVATE_KEY=0x... BASE_TOKEN=<ShardToken address> SEED_BASE=500000 npm run open-market
+```
+
+### Simulation
+
+`--dry-run` shows precisions, amounts and balances, and sends nothing (it still returns the JSON):
 
 ```bash
 PRIVATE_KEY=0x... npm run open-market -- --offering <addr> --seed 500000 --dry-run
 ```
 
-### Salida JSON
+### JSON output
 
-El último bloque de stdout es siempre un JSON con el resultado (`market`, `vault`, `seedTx`, `base`, `quote`, `price`, `seedBase`, `seedQuote`, `dryRun`). Con `--json` los logs se van a stderr y stdout queda solo con el JSON, listo para que lo parsee otro proceso:
+The last block of stdout is always a JSON with the result (`market`, `vault`, `seedTx`, `base`, `quote`, `price`, `seedBase`, `seedQuote`, `dryRun`). With `--json` the logs go to stderr and stdout holds only the JSON, ready for another process to parse:
 
 ```bash
 PRIVATE_KEY=0x... npm run open-market -- --offering <addr> --seed 500000 --json | jq .market
 ```
 
-## Argumentos y variables
+## Arguments and variables
 
-| Flag | Variable equivalente | Qué es |
+| Flag | Equivalent variable | What it is |
 |---|---|---|
-| `--offering <addr>` | `OFFERING` | Dirección del `Offering`. Resuelve `BASE_TOKEN`, `QUOTE_TOKEN` y `PRICE` onchain. |
-| `--seed <n>` | `SEED_BASE` | (obligatoria) Cantidad de shards a poner en el vault. El USDC sale de multiplicar por el precio. |
-| `--dry-run` | `DRY_RUN=true` | Simula sin enviar transacciones. |
-| `--json` | — | Logs a stderr; stdout solo el JSON final. |
-| — | `PRIVATE_KEY` | (obligatoria) Wallet que abre el mercado. Usa una de prueba. |
-| — | `BASE_TOKEN` | Dirección del `ShardToken` (solo modo manual). |
-| — | `PRICE` | `0.1`. Precio en USDC por shard (solo modo manual). |
-| — | `QUOTE_TOKEN` | USDC de Kuru en testnet. Moneda de cotización (solo modo manual). |
+| `--offering <addr>` | `OFFERING` | `Offering` address. Resolves `BASE_TOKEN`, `QUOTE_TOKEN` and `PRICE` onchain. |
+| `--seed <n>` | `SEED_BASE` | (required) Number of shards to put in the vault. The USDC is that amount times the price. |
+| `--dry-run` | `DRY_RUN=true` | Simulates without sending transactions. |
+| `--json` | — | Logs to stderr; stdout only the final JSON. |
+| — | `PRIVATE_KEY` | (required) Wallet that opens the market. Use a test one. |
+| — | `BASE_TOKEN` | `ShardToken` address (manual mode only). |
+| — | `PRICE` | `0.1`. Price in USDC per shard (manual mode only). |
+| — | `QUOTE_TOKEN` | Kuru's testnet USDC. Quote currency (manual mode only). |
 | — | `RPC_URL` | `https://testnet-rpc.monad.xyz`. |
-| — | `KURU_ROUTER` | Router de Kuru en testnet. |
-| — | `MAX_PRICE` / `MIN_SIZE` / `TICK_BPS` | `10` / `1` / `100`. Parámetros de `calculatePrecisions`. |
-| — | `TAKER_FEE_BPS` / `MAKER_FEE_BPS` / `AMM_SPREAD` | `30` / `10` / `100`. Comisiones y spread del vault. |
+| — | `KURU_ROUTER` | Kuru's Router on testnet. |
+| — | `MAX_PRICE` / `MIN_SIZE` / `TICK_BPS` | `10` / `1` / `100`. `calculatePrecisions` parameters. |
+| — | `TAKER_FEE_BPS` / `MAKER_FEE_BPS` / `AMM_SPREAD` | `30` / `10` / `100`. Fees and vault spread. |
 
-## Cómo se probó
-Sobre un fork local de Monad testnet (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <bloque>`) con tokens de prueba: el mercado se creó, el vault quedó con 500.000 shards y 50.000 USDC, y el libro mostró bid ≈ 0,099 y ask 0,100. El modo `--offering` se probó con el flujo completo: contribute → finalize → claim → open-market. No se probó todavía en la testnet real, ni con el USDC de Kuru.
+## How it was tested
+On a local fork of Monad testnet (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <block>`) with test tokens: the market was created, the vault held 500,000 shards and 50,000 USDC, and the book showed bid ≈ 0.099 and ask 0.100. The `--offering` mode was tested with the full flow: contribute → finalize → claim → open-market. It was later run on the real testnet with our mUSDC (see [`PROJECT_LOG.md`](../../PROJECT_LOG.md), section 6); it has not been tested with Kuru's USDC.
 
-El `--dry-run` también corre sobre un anvil local sin fork (deploy con `DeployLocal.s.sol`): resuelve token, moneda y precio del `Offering` y verifica saldos, pero el deploy real del mercado necesita el fork porque el Router de Kuru no existe en anvil plano. En modo manual sobre anvil hay que pasar `QUOTE_TOKEN` con la dirección del USDC mock.
+`--dry-run` also runs on a plain local anvil with no fork (deployed with `DeployLocal.s.sol`): it resolves the token, payment token and price from the `Offering` and checks balances, but the real market deploy needs the fork because Kuru's Router does not exist on plain anvil. In manual mode on anvil, pass `QUOTE_TOKEN` with the mock USDC address.

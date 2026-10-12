@@ -10,19 +10,24 @@ const dictionaries = {
     "ui.themeToDark": "Cambiar a tema oscuro",
     "ui.langToEn": "Cambiar a inglés",
     "ui.langToEs": "Cambiar a español",
-    "nav.lots": "Lotes",
-    "nav.create": "Emitir lote",
+    "ui.menuOpen": "Abrir menú",
+    "ui.menuClose": "Cerrar menú",
+    "nav.lots": "Licitaciones",
+    "nav.orderbook": "Orderbook",
+    "nav.create": "Tokenizar",
     "auth.loading": "Cargando...",
     "auth.login": "Iniciar sesión",
     "auth.logout": "Cerrar sesión",
+    "auth.wallet": "Tu wallet",
+    "auth.preparing": "Preparando tu wallet...",
     "home.title": "Activos reales argentinos, ",
     "home.titleAccent": "fraccionados onchain",
     "home.lead": "Invertí en una fracción de una cosecha. Cada lote se financia en una licitación y luego se negocia en Kuru.",
-    "home.viewLots": "Ver lotes",
-    "home.openLots": "Lotes abiertos",
+    "home.viewLots": "Ver licitaciones",
+    "home.openLots": "Licitaciones abiertas",
     "home.raised": "Recaudado",
-    "home.lots": "Lotes",
-    "home.empty": "Todavía no hay lotes",
+    "home.lots": "Licitaciones",
+    "home.empty": "Todavía no hay licitaciones",
     "home.emptyHint": "Cuando un emisor verificado abra una licitación, la vas a ver acá.",
   },
   en: {
@@ -30,19 +35,24 @@ const dictionaries = {
     "ui.themeToDark": "Switch to dark theme",
     "ui.langToEn": "Switch to English",
     "ui.langToEs": "Switch to Spanish",
-    "nav.lots": "Lots",
-    "nav.create": "Issue lot",
+    "ui.menuOpen": "Open menu",
+    "ui.menuClose": "Close menu",
+    "nav.lots": "Auctions",
+    "nav.orderbook": "Orderbook",
+    "nav.create": "Tokenize",
     "auth.loading": "Loading...",
     "auth.login": "Log in",
     "auth.logout": "Log out",
+    "auth.wallet": "Your wallet",
+    "auth.preparing": "Preparing your wallet...",
     "home.title": "Argentine real assets, ",
     "home.titleAccent": "fractionalized onchain",
     "home.lead": "Invest in a fraction of a harvest. Each lot is funded in an auction and then traded on Kuru.",
-    "home.viewLots": "View lots",
-    "home.openLots": "Open lots",
+    "home.viewLots": "View auctions",
+    "home.openLots": "Open auctions",
     "home.raised": "Raised",
-    "home.lots": "Lots",
-    "home.empty": "No lots yet",
+    "home.lots": "Auctions",
+    "home.empty": "No auctions yet",
     "home.emptyHint": "When a verified issuer opens an auction, you'll see it here.",
   },
 } as const;
@@ -59,6 +69,14 @@ const I18nContext = createContext<I18nCtx>({
 
 export const useI18n = () => useContext(I18nContext);
 
+export const currentLocale = (): Locale =>
+  typeof document !== "undefined" && document.documentElement.lang === "en" ? "en" : "es";
+
+export function useT() {
+  const { locale } = useI18n();
+  return useCallback((es: string, en: string) => (locale === "en" ? en : es), [locale]);
+}
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState<Locale>("es");
 
@@ -67,13 +85,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     if (saved === "en" || saved === "es") setLocale(saved);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   const t = useCallback((key: MessageKey) => dictionaries[locale][key], [locale]);
 
   const toggleLocale = useCallback(() => {
     const next: Locale = locale === "es" ? "en" : "es";
     setLocale(next);
     localStorage.setItem("sc_lang", next);
-    document.documentElement.lang = next;
   }, [locale]);
 
   const value = useMemo(() => ({ locale, t, toggleLocale }), [locale, t, toggleLocale]);

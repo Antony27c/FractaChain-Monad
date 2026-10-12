@@ -1,90 +1,90 @@
 # FractaChain: frontend
 
-Next.js + wagmi + viem sobre Monad testnet (chain ID 10143), con login de Privy.
+Next.js + wagmi + viem on Monad testnet (chain ID 10143), with Privy login.
 
-## Cómo levantarlo
+## Running it
 
-1. Instalar dependencias:
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Copiar `.env.example` a `.env.local` y completar `NEXT_PUBLIC_PRIVY_APP_ID` con el App ID de Privy (dashboard.privy.io > la app > Settings > Basics). `.env.local` no se sube al repo.
+2. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_PRIVY_APP_ID` to your Privy App ID (dashboard.privy.io > your app > Settings > Basics). `.env.local` is not committed to the repo.
 
-3. Levantar el servidor de desarrollo:
+3. Start the development server:
 
    ```bash
    npm run dev
    ```
 
-   Abrir http://localhost:3000.
+   Open http://localhost:3000.
 
-## Desarrollo local completo (sin Privy ni testnet)
+## Full local development (no Privy, no testnet)
 
-Sirve para probar todo el flujo en tu máquina, con una cadena local (anvil) y un USDC de prueba. Requiere [Foundry](https://book.getfoundry.sh/getting-started/installation).
+Lets you test the whole flow on your machine, with a local chain (anvil) and a test USDC. Requires [Foundry](https://book.getfoundry.sh/getting-started/installation).
 
-1. En una terminal, levantar la cadena local:
+1. In one terminal, start the local chain:
 
    ```bash
    anvil
    ```
 
-2. En otra terminal, desplegar los contratos. Esto escribe `frontend/.env.development.local` con las direcciones (no se sube a git):
+2. In another terminal, deploy the contracts. This writes `frontend/.env.development.local` with the addresses (not committed to git):
 
    ```bash
    cd contracts
    forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
    ```
 
-3. Levantar el frontend (no hace falta el App ID de Privy en este modo):
+3. Start the frontend (no Privy App ID needed in this mode):
 
    ```bash
    cd frontend
    npm run dev
    ```
 
-En modo dev, el selector de la barra superior cambia entre cuentas de anvil: el emisor, un inversor verificado y dos sin verificar. El botón "Dev" (abajo a la derecha) carga USDC de prueba y avanza el tiempo de la cadena para poder cerrar licitaciones.
+In dev mode, the picker in the top bar switches between anvil accounts: the issuer, a verified investor and two unverified ones. The "Dev" button (bottom right) loads test USDC and advances chain time so auctions can be closed.
 
-Si cambian los contratos, regenerar los ABIs del frontend con `npm run sync-abi` (después de `forge inspect ... > contracts/abi/...`, ver `contracts/CONTRATOS.md`).
+If the contracts change, regenerate the frontend ABIs with `npm run sync-abi` (after `forge inspect ... > contracts/abi/...`, see [`contracts/CONTRACTS.md`](../contracts/CONTRACTS.md)).
 
-## Mercado secundario (Kuru)
+## Secondary market (Kuru)
 
-En la página de un lote exitoso, el panel "Mercado secundario" busca el mercado de Kuru del shard y muestra bid, ask, comisiones, vault y links al explorer. La app web de Kuru solo muestra mainnet, así que el mercado de testnet se consulta onchain.
+On the page of a successful lot, the "Secondary market" panel looks up the shard's Kuru market and shows bid, ask, fees, vault and explorer links. Kuru's web app only shows mainnet, so the testnet market is read onchain.
 
-- **Registro de mercados:** `src/lib/kuru.ts` (`KURU_MARKETS`, token en minúsculas a dirección del mercado). Los mercados abiertos desde la UI se guardan además en `localStorage` de ese navegador; para que los vea todo el mundo, agregarlos al registro.
-- **Abrir mercado:** si estás conectado con la wallet del emisor y el lote todavía no tiene mercado, el panel muestra "Abrir mercado". Crea el mercado en el Router de Kuru (`deployProxy`) y siembra el vault (2 aprobaciones y un depósito). El primer depósito fija el precio del vault. Necesita MON para el gas y shards y USDC en la wallet del emisor.
-- **Comprar y vender:** con el mercado abierto, el panel permite operar con órdenes de mercado (IOC) contra el order book de Kuru. Estima el resultado antes de firmar, aplica una tolerancia de slippage (0,5 / 1 / 3 %) como `minAmountOut` y pide la aprobación del token solo si no alcanza la actual. Los montos de compra usan las unidades de `pricePrecision` y los de venta las de `sizePrecision` del mercado (`lib/kuru.ts`).
-- **Precisiones:** las calcula `/api/kuru/precisions` en el servidor con `@kuru-labs/kuru-sdk` (no entra al bundle del navegador).
+- **Market registry:** `src/lib/kuru.ts` (`KURU_MARKETS`, lowercase token to market address). Markets opened from the UI are also saved in that browser's `localStorage`; for everyone to see them, add them to the registry.
+- **Open market:** if you are connected with the issuer's wallet and the lot has no market yet, the panel shows "Open market". It creates the market on Kuru's Router (`deployProxy`) and seeds the vault (2 approvals and a deposit). The first deposit sets the vault price. It needs MON for gas and shards and USDC in the issuer's wallet.
+- **Buy and sell:** with the market open, the panel lets you trade with market orders (IOC) against Kuru's order book. It quotes the result before signing, applies a slippage tolerance (0.5 / 1 / 3%) as `minAmountOut` and asks for a token approval only if the current one is not enough. Buy amounts use the market's `pricePrecision` units and sell amounts its `sizePrecision` units (`lib/kuru.ts`).
+- **Precisions:** computed server-side by `/api/kuru/precisions` with `@kuru-labs/kuru-sdk` (it stays out of the browser bundle).
 
-## Deploy en Railway (Docker)
+## Deploy on Railway (Docker)
 
-El frontend tiene un `Dockerfile` que construye Next.js en modo `standalone` y lo sirve con `node server.js`.
+The frontend has a `Dockerfile` that builds Next.js in `standalone` mode and serves it with `node server.js`.
 
-1. En Railway: **New Project > Deploy from GitHub repo** y elegir este repo.
-2. En el servicio, **Settings > Root Directory** = `frontend`. Railway detecta el `Dockerfile` solo.
-3. En **Variables**, cargar las mismas que `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` y, si se usa, `NEXT_PUBLIC_RPC_URL`. **No** cargar `NEXT_PUBLIC_DEV_MODE` ni `NEXT_PUBLIC_NETWORK`. Para "Mi actividad", agregar también `ENVIO_API_TOKEN` (se lee al ejecutar, no hace falta rebuild).
-4. **Settings > Networking > Generate Domain** para obtener la URL pública.
-5. En el dashboard de Privy, agregar esa URL (`https://<app>.up.railway.app`) en **Allowed origins**; si no, el login falla.
+1. In Railway: **New Project > Deploy from GitHub repo** and pick this repo.
+2. In the service, **Settings > Root Directory** = `frontend`. Railway detects the `Dockerfile` on its own.
+3. In **Variables**, set the same ones as `.env.local`: `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC`, `NEXT_PUBLIC_REDEMPTION` and, if used, `NEXT_PUBLIC_RPC_URL`. Do **not** set `NEXT_PUBLIC_DEV_MODE` or `NEXT_PUBLIC_NETWORK`. For "My activity", also add `ENVIO_API_TOKEN` (read at runtime, no rebuild needed).
+4. **Settings > Networking > Generate Domain** to get the public URL.
+5. In the Privy dashboard, add that URL (`https://<app>.up.railway.app`) under **Allowed origins**; otherwise login fails.
 
-Las variables `NEXT_PUBLIC_*` se incrustan en el bundle al construir: si se cambia alguna, Railway reconstruye y redespliega. Todo lo que empieza con `NEXT_PUBLIC_` queda visible en el navegador, incluido el RPC; con un RPC privado conviene restringirlo por dominio en el proveedor, o usar el público (`https://testnet-rpc.monad.xyz`).
+`NEXT_PUBLIC_*` variables are embedded in the bundle at build time: if you change one, Railway rebuilds and redeploys. Anything starting with `NEXT_PUBLIC_` is visible in the browser, including the RPC; with a private RPC, restrict it by domain at the provider, or use the public one (`https://testnet-rpc.monad.xyz`).
 
-## Mi actividad (historial onchain)
+## My activity (onchain history)
 
-La página `/actividad` (también desde el menú de cuenta) lista todas las operaciones del usuario: compras y ventas en Kuru, aportes, reclamos, reembolsos, liquidez, canjes de cosecha y USDC de prueba. La ruta `/api/activity` busca en HyperSync de Envio los `Transfer` ERC-20 del usuario sobre el USDC y los shards, los agrupa por transacción y los clasifica según los montos y la contraparte. Se lee de la cadena: no hay base de datos y funciona desde cualquier dispositivo.
+The `/actividad` page (also reachable from the account menu) lists all of the user's operations: buys and sells on Kuru, contributions, claims, refunds, liquidity, harvest redemptions and test USDC. The `/api/activity` route looks up the user's ERC-20 `Transfer` events for USDC and shards in Envio's HyperSync, groups them by transaction and classifies them by amounts and counterparty. It is read from the chain: there is no database and it works from any device.
 
-No se usa el RPC directo porque `eth_getLogs` está limitado a 100 bloques en el RPC público (5 en QuickNode gratis) y el evento `Trade` de Kuru no tiene campos indexados.
+The RPC is not used directly because `eth_getLogs` is limited to 100 blocks on the public RPC (5 on free QuickNode) and Kuru's `Trade` event has no indexed fields.
 
-## Variables de entorno
+## Environment variables
 
-| Variable | Qué es |
+| Variable | What it is |
 |---|---|
-| `NEXT_PUBLIC_PRIVY_APP_ID` | App ID de Privy (solo fuera del modo dev). |
-| `NEXT_PUBLIC_NETWORK` | `local` para anvil. Sin definir, usa Monad testnet. |
-| `NEXT_PUBLIC_DEV_MODE` | `true` para saltear Privy y usar cuentas de anvil. |
-| `NEXT_PUBLIC_RPC_URL` | RPC a usar (por defecto el de la cadena elegida). |
-| `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` | Direcciones de los contratos. |
-| `ENVIO_API_TOKEN` | Solo servidor (sin `NEXT_PUBLIC_`). Token gratis de HyperSync ([app.envio.dev/api-tokens](https://envio.dev/app/api-tokens)) para la página "Mi actividad". Sin él, `/api/activity` responde que falta configurarlo. |
-| `ACTIVITY_FROM_BLOCK` | Opcional. Bloque desde el que se busca la actividad (por defecto 68.700.000, antes del deploy de los contratos). |
-| `NEXT_PUBLIC_REDEMPTION` | Dirección de `HarvestRedemption`. Sin definir, no se muestra el panel "Liquidación de la cosecha". |
-| `NEXT_PUBLIC_USDC_MINTABLE` | `false` si el USDC configurado no tiene `mint` libre. Por defecto se muestra el botón "Cargar 1.000 USDC de prueba" a quien tiene saldo 0. |
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Privy App ID (only outside dev mode). |
+| `NEXT_PUBLIC_NETWORK` | `local` for anvil. If unset, uses Monad testnet. |
+| `NEXT_PUBLIC_DEV_MODE` | `true` to skip Privy and use anvil accounts. |
+| `NEXT_PUBLIC_RPC_URL` | RPC to use (defaults to the selected chain's). |
+| `NEXT_PUBLIC_FACTORY`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_USDC` | Contract addresses. |
+| `ENVIO_API_TOKEN` | Server only (no `NEXT_PUBLIC_`). Free HyperSync token ([app.envio.dev/api-tokens](https://envio.dev/app/api-tokens)) for the "My activity" page. Without it, `/api/activity` replies that it is not configured. |
+| `ACTIVITY_FROM_BLOCK` | Optional. Block from which activity is searched (defaults to 68,700,000, before the contracts were deployed). |
+| `NEXT_PUBLIC_REDEMPTION` | `HarvestRedemption` address. If unset, the "Harvest settlement" panel is hidden. |
+| `NEXT_PUBLIC_USDC_MINTABLE` | `false` if the configured USDC has no open `mint`. By default the "Load 1,000 test USDC" button is shown to anyone with a 0 balance. |

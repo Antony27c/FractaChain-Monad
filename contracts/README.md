@@ -1,60 +1,60 @@
-# Contratos de FractaChain
+# FractaChain contracts
 
-Solidity + Foundry, para Monad testnet (chain ID 10143).
+Solidity + Foundry, for Monad testnet (chain ID 10143). Function reference: [`CONTRACTS.md`](CONTRACTS.md).
 
-## Requisitos
+## Requirements
 - [Foundry](https://book.getfoundry.sh/getting-started/installation)
 
-## Uso
+## Usage
 ```bash
 git submodule update --init --recursive
 forge build
 forge test
 ```
 
-Para correr también el test contra Kuru en Monad testnet (fork):
+To also run the test against Kuru on Monad testnet (fork):
 ```bash
 forge test --fork-url https://testnet-rpc.monad.xyz
 ```
 
-## Deploy local (anvil)
+## Local deploy (anvil)
 
-`DeployLocal.s.sol` despliega un `TestToken` USDC mock (6 decimales, mint libre) con 1.000.000 USDC para el deployer y para las tres cuentas de anvil que ofrece el selector de dev del frontend, más `KycRegistry`, `IssuanceFactory` y el lote de soja de ejemplo. Deja verificados al emisor y al inversor A. Usa la clave de anvil por defecto; `PRIVATE_KEY` la puede sobreescribir.
+`DeployLocal.s.sol` deploys a mock USDC `TestToken` (6 decimals, open mint) with 1,000,000 USDC for the deployer and for the three anvil accounts offered by the frontend's dev picker, plus `KycRegistry`, `IssuanceFactory` and the sample soy lot. It leaves the issuer and investor A verified. It uses anvil's default key; `PRIVATE_KEY` can override it.
 
 ```bash
 anvil --port 8545
 forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
 ```
 
-También funciona sobre un fork (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <bloque>`), que es lo que permite probar `scripts/kuru/open-market.ts` contra el código real del Router de Kuru.
+It also works on a fork (`anvil --fork-url https://testnet-rpc.monad.xyz --fork-chain-id 10143 --fork-block-number <block>`), which is what lets you test `scripts/kuru/open-market.ts` against the real code of Kuru's Router.
 
-El script escribe solo `frontend/.env.development.local` (ignorado por git) con `NEXT_PUBLIC_NETWORK`, `NEXT_PUBLIC_DEV_MODE`, `NEXT_PUBLIC_RPC_URL`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_FACTORY` y `NEXT_PUBLIC_USDC`, así que no hay que copiar direcciones a mano. Para no escribirlo, `WRITE_FRONTEND_ENV=false`.
+The script writes `frontend/.env.development.local` on its own (ignored by git) with `NEXT_PUBLIC_NETWORK`, `NEXT_PUBLIC_DEV_MODE`, `NEXT_PUBLIC_RPC_URL`, `NEXT_PUBLIC_KYC`, `NEXT_PUBLIC_FACTORY` and `NEXT_PUBLIC_USDC`, so there is no need to copy addresses by hand. To skip writing it, set `WRITE_FRONTEND_ENV=false`.
 
-## Deploy en Monad testnet
-Despliega `KycRegistry`, `IssuanceFactory` y un lote de soja de ejemplo (1.000.000 shards a 0,10 USDC, soft cap 40.000 USDC, hard cap 100.000 USDC, 7 días).
+## Deploy to Monad testnet
+Deploys `KycRegistry`, `IssuanceFactory` and a sample soy lot (1,000,000 shards at 0.10 USDC, soft cap 40,000 USDC, hard cap 100,000 USDC, 7 days).
 
-1. Usa una wallet **de prueba** con MON de https://faucet.monad.xyz (el deploy cuesta unos 0,75 MON).
-2. Completa `PRIVATE_KEY` en `contracts/.env` (nunca se sube a git).
-3. Simulación, sin gastar nada:
+1. Use a **test** wallet with MON from https://faucet.monad.xyz (the deploy costs about 0.75 MON).
+2. Set `PRIVATE_KEY` in `contracts/.env` (never committed to git).
+3. Simulation, without spending anything:
 ```bash
 forge script script/Deploy.s.sol --fork-url https://testnet-rpc.monad.xyz
 ```
-4. Deploy real:
+4. Real deploy:
 ```bash
 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 ```
 
-Variables opcionales: `PAYMENT_TOKEN` (por defecto el USDC de Kuru), `OPEN_VERIFICATION` (por defecto `true`, permite que cualquiera se verifique con `verifyMyself()`) y `CREATE_SAMPLE` (por defecto `true`).
+Optional variables: `PAYMENT_TOKEN` (Kuru's USDC by default), `OPEN_VERIFICATION` (`true` by default, lets anyone verify themselves with `verifyMyself()`) and `CREATE_SAMPLE` (`true` by default).
 
-Copia `.env.example` a `.env` y completa `MONAD_TESTNET_RPC_URL` para desplegar.
+Copy `.env.example` to `.env` and set `MONAD_TESTNET_RPC_URL` to deploy.
 
-## Deploy de la liquidación de cosecha
+## Deploying the harvest settlement
 
-`HarvestRedemption` se despliega aparte y sirve a todos los lotes (también a los ya emitidos). Usa por defecto el mUSDC de la demo; `PAYMENT_TOKEN` lo cambia.
+`HarvestRedemption` is deployed separately and serves every lot (including those already issued). It uses the demo's mUSDC by default; `PAYMENT_TOKEN` changes it.
 
 ```bash
-forge script script/DeployRedemption.s.sol --fork-url https://testnet-rpc.monad.xyz            # simulación
-forge script script/DeployRedemption.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast # deploy real
+forge script script/DeployRedemption.s.sol --fork-url https://testnet-rpc.monad.xyz            # simulation
+forge script script/DeployRedemption.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast # real deploy
 ```
 
-Después, poner la dirección en `NEXT_PUBLIC_REDEMPTION` del frontend.
+Then set the address in the frontend's `NEXT_PUBLIC_REDEMPTION`.
