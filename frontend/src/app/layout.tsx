@@ -57,7 +57,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="relative flex min-h-[100dvh] flex-col bg-bg font-sans text-ink selection:bg-leaf-200 selection:text-black">
+      <body className="relative flex min-h-[100dvh] flex-col font-sans text-ink selection:bg-leaf-200 selection:text-black">
         <ThemeProvider>
           <I18nProvider>
             <Providers>

@@ -18,6 +18,7 @@
   --lcd-green-deep: #7ed86a;
   --globe-ocean-a: #f4fbee;
   --globe-ocean-b: #e4f3d8;
+  --node-network: rgba(78, 167, 67, 0.16);
   color-scheme: light;
 }
 
@@ -35,6 +36,7 @@ html.dark {
   --bad: #f87171;
   --globe-ocean-a: #1a2418;
   --globe-ocean-b: #10170f;
+  --node-network: rgba(126, 216, 106, 0.2);
   color-scheme: dark;
 }
 
@@ -75,9 +77,12 @@ html {
 html,
 body {
   color: var(--ink);
-  background: var(--bg);
   min-height: 100%;
   overflow-x: clip;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
@@ -116,10 +121,64 @@ p {
     0 18px 40px -28px rgba(70, 130, 50, 0.35);
 }
 
-.liquid-sheen {
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.85), transparent 45%),
-    repeating-linear-gradient(115deg, transparent 0 13px, rgba(184, 240, 164, 0.12) 13px 14px);
+.node-network {
+  color: var(--node-network);
+}
+
+.node-mesh {
+  opacity: 0.55;
+}
+
+@keyframes node-flow {
+  to {
+    stroke-dashoffset: -230;
+  }
+}
+
+@keyframes node-beat {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+.node-pulse path {
+  animation: node-flow 14s linear infinite;
+}
+
+.node-pulse path:nth-of-type(2) {
+  animation-duration: 19s;
+}
+
+.node-pulse path:nth-of-type(3) {
+  animation-duration: 11s;
+  animation-direction: reverse;
+}
+
+.node-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-beat 4.5s ease-in-out infinite;
+}
+
+.node-dot:nth-of-type(2n) {
+  animation-delay: -1.4s;
+}
+
+.node-dot:nth-of-type(3n) {
+  animation-delay: -2.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node-pulse path,
+  .node-dot {
+    animation: none;
+  }
 }
 
 .logo-lockup {
@@ -300,15 +359,6 @@ p {
 ::-webkit-scrollbar-thumb {
   background: #c8c8c8;
   border-radius: 3px;
-}
-
-html.dark .crystal-backdrop {
-  background: #09090b;
-}
-
-html.dark .crystal-backdrop > div:not(.liquid-sheen) {
-  opacity: 0.22;
-  filter: saturate(0.55) brightness(0.45);
 }
 
 html.dark .crystal-card {
