@@ -19,6 +19,18 @@
   --globe-ocean-a: #f4fbee;
   --globe-ocean-b: #e4f3d8;
   --node-network: rgba(78, 167, 67, 0.16);
+  --btn-primary-top: #12a374;
+  --btn-primary-bottom: #0b7a56;
+  --btn-primary-edge: #096548;
+  --btn-primary-ink: #ffffff;
+  --btn-primary-glow: rgba(16, 150, 105, 0.5);
+  --btn-ghost-top: rgba(255, 255, 255, 0.95);
+  --btn-ghost-bottom: rgba(236, 250, 244, 0.8);
+  --btn-ghost-border: rgba(16, 160, 110, 0.35);
+  --btn-ghost-border-hover: rgba(16, 163, 116, 0.7);
+  --btn-ghost-ink: #0d3b2c;
+  --btn-highlight: rgba(255, 255, 255, 0.45);
+  --btn-shine: rgba(255, 255, 255, 0.4);
   color-scheme: light;
 }
 
@@ -37,6 +49,18 @@ html.dark {
   --globe-ocean-a: #1a2418;
   --globe-ocean-b: #10170f;
   --node-network: rgba(126, 216, 106, 0.2);
+  --btn-primary-top: #5eeab0;
+  --btn-primary-bottom: #22c38a;
+  --btn-primary-edge: #159a6c;
+  --btn-primary-ink: #04140e;
+  --btn-primary-glow: rgba(52, 211, 153, 0.45);
+  --btn-ghost-top: rgba(36, 48, 44, 0.8);
+  --btn-ghost-bottom: rgba(20, 26, 24, 0.7);
+  --btn-ghost-border: rgba(80, 210, 160, 0.25);
+  --btn-ghost-border-hover: rgba(52, 211, 153, 0.6);
+  --btn-ghost-ink: #d9f7ec;
+  --btn-highlight: rgba(255, 255, 255, 0.1);
+  --btn-shine: rgba(255, 255, 255, 0.28);
   color-scheme: dark;
 }
 
@@ -187,53 +211,100 @@ p {
 
 .btn-lcd {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: var(--font-lcd), ui-monospace, monospace;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #163012;
-  background: linear-gradient(
-    180deg,
-    rgba(232, 255, 220, 0.92) 0%,
-    rgba(184, 240, 164, 0.55) 48%,
-    rgba(255, 255, 255, 0.45) 100%
-  );
-  border: 1px solid rgba(126, 196, 110, 0.55);
+  font-family: var(--font-lato), "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 900;
+  line-height: 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--btn-ghost-ink);
+  background: linear-gradient(180deg, var(--btn-ghost-top), var(--btn-ghost-bottom));
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 12px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -8px 16px rgba(126, 180, 100, 0.18),
-    0 10px 24px -16px rgba(80, 140, 50, 0.55);
+    inset 0 1px 0 var(--btn-highlight),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 6px 14px -10px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(10px);
-  overflow: hidden;
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    translate 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    filter 0.2s ease;
 }
 
 .btn-lcd::after {
   content: "";
-  pointer-events: none;
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 4px);
-  opacity: 0.45;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, var(--btn-shine) 50%, transparent 70%);
+  translate: -120% 0;
+  transition: translate 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-lcd:hover:not(:disabled) {
+  translate: 0 -1px;
+  border-color: var(--btn-ghost-border-hover);
+  box-shadow:
+    inset 0 1px 0 var(--btn-highlight),
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 10px 22px -12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-lcd:hover:not(:disabled)::after {
+  translate: 120% 0;
+}
+
+.btn-lcd:active:not(:disabled) {
+  translate: 0 0;
 }
 
 .btn-lcd-solid {
-  background: linear-gradient(180deg, #d8f7c8 0%, #9ee087 45%, #b8f0a4 100%);
-  color: #10240c;
+  color: var(--btn-primary-ink);
+  background: linear-gradient(180deg, var(--btn-primary-top), var(--btn-primary-bottom));
+  border-color: var(--btn-primary-edge);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+    0 8px 20px -10px var(--btn-primary-glow);
 }
 
-.btn-lcd-ghost {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(230, 248, 222, 0.35));
-  color: #2a3d22;
+.btn-lcd-solid:hover:not(:disabled) {
+  border-color: var(--btn-primary-edge);
+  filter: brightness(1.06) saturate(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+    0 12px 28px -10px var(--btn-primary-glow);
 }
 
 .btn-lcd:disabled {
-  opacity: 0.5;
-  filter: grayscale(0.6);
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-lcd,
+  .btn-lcd::after {
+    transition: none;
+  }
+
+  .btn-lcd:hover:not(:disabled) {
+    translate: none;
+  }
+
+  .btn-lcd::after {
+    display: none;
+  }
 }
 
 .hero-lcd {
@@ -377,11 +448,6 @@ html.dark .glass-panel {
 html.dark .hero-lcd {
   color: #7ed86a;
   text-shadow: 0 0 16px rgba(126, 216, 106, 0.35);
-}
-
-html.dark .btn-lcd-ghost {
-  background: linear-gradient(180deg, rgba(32, 40, 32, 0.75), rgba(18, 28, 18, 0.5));
-  color: #d7f0cc;
 }
 
 html.dark ::-webkit-scrollbar-track {
