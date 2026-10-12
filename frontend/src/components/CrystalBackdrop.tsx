@@ -1,5 +1,23 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
 // Red de conexiones tipo constelación, saliendo de la esquina inferior derecha
 export function CrystalBackdrop() {
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () =>
+      setScrolled(window.scrollY > window.innerHeight * 0.6);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const showNet = pathname !== "/" || scrolled;
+
   return (
     <div className="crystal-backdrop pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
       <div className="absolute -left-24 -top-28 h-[28rem] w-[28rem] rounded-full bg-[#8b5cf6] opacity-30 blur-[90px]" />
@@ -10,7 +28,9 @@ export function CrystalBackdrop() {
       <svg
         viewBox="0 0 640 640"
         preserveAspectRatio="xMidYMid slice"
-        className="logo-watermark absolute bottom-[-12%] right-[-10%] h-[130%] w-[85%]"
+        className={`logo-watermark absolute bottom-[-12%] right-[-10%] h-[130%] w-[85%] ${
+          showNet ? "net-visible" : ""
+        }`}
         fill="none"
         stroke="currentColor"
         strokeLinecap="round"
