@@ -3,8 +3,19 @@
 **Argentine harvests, tradable onchain.** FractaChain lets a farmer or agri SME split a harvest lot into tokens called **shards**, raise funds in a primary offering, list the shards on **Kuru**'s fully onchain order book on **Monad**, and pay holders back in USDC when the crop is sold.
 
 - **Live app:** https://fractachain-monad.up.railway.app (Monad testnet)
-- **Demo video:** _coming soon_
+- **Demo video (3 min):** https://youtu.be/gfV8uK-o3Gg
+- **Pitch video (2 min):** https://youtu.be/s5gkIXFvj4c
 - **Hackathon:** [Monad Metropolis](https://monad.xyz/developers/hackathons/metropolis), track **Onchain Finance & Trading**. Bounties: **Kuru** (Bring New Assets and Markets to Kuru) and **Privy**.
+
+## Try it
+
+1. Open the live app and sign in with your email. Privy creates an embedded wallet with 0 MON; every transaction is gas-sponsored, so you never need MON.
+2. On a lot, click **Verify me (demo)**, then **Load 1,000 test USDC**.
+3. Contribute to an open auction. If none is open, create one in **Tokenize** (for example, min 100 and max 250 USDC), then finalize it and claim your shards.
+4. On a successful lot, trade on Kuru in the secondary market (buy, sell, add and withdraw liquidity), settle the harvest as the issuer and redeem as a holder.
+5. Click your address in the header, or open `/actividad`, to see every step.
+
+Edge and Chrome work best. Brave Shields can block the embedded wallet; if the wallet does not load, turn Shields off for the site.
 
 ## The problem
 
